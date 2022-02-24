@@ -379,7 +379,6 @@ function init() {
   //scene.fog = new THREE.FogExp2 (0xffffff, 0.007);
 
   world.add(floor);
-  scene.add(playerMesh);
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);

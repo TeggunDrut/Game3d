@@ -23,10 +23,9 @@ function loop() {
     m.position.z = floor.position.z - floorHeight / 2 + box.z + box.scaleZ / 2;
     if (collidingWithRect(box) == "ontop") {
       velocity.y = 0;
-      console.log(canJump);
       canJump = true;
-      console.log(box.scaleY,  box.y, player.height);
       yawObject.position.y = box.y + box.scaleY + player.height;
+      // pitchObject.position.y = box.y + player.height / 2w;
     } else {
       if (collidingWithRect(box) == "right") {
         yawObject.position.x = m.position.x - box.scaleX / 2 - 3;

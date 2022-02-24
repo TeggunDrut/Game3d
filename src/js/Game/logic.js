@@ -5,16 +5,20 @@ function collidingWithRect(mesh) {
   let geom = new THREE.BoxGeometry(mesh.scaleX, mesh.scaleY, mesh.scaleZ);
   let mat = new THREE.MeshBasicMaterial({ color: mesh.color });
   let m = new THREE.Mesh(geom, mat);
+  m.position.x = mesh.x;
+  m.position.y = mesh.y;
+  m.position.z = mesh.z;
   let x = floor.position.x - floorWidth / 2 + mesh.x + mesh.scaleX / 2;
   let y = m.position.y;
   let z = (m.position.z =
     floor.position.z - floorHeight / 2 + mesh.z + mesh.scaleZ / 2);
   let s = true;
-  // if (playerY < mesh.y) {
-  //   s = false;
-  // } else {
-  //   s = true;
-  // }
+
+  if (playerY < mesh.y) {
+    s = false;
+  } else {
+    s = true;
+  }
   if (
     playerY > y - mesh.scaleY / 2 &&
     playerY < y + mesh.scaleY &&
@@ -25,13 +29,10 @@ function collidingWithRect(mesh) {
     playerZ > z - mesh.scaleZ / 2
   ) {
     // velocity.y = 0;
-    s = false;
-    
+    // s = false;
     return "ontop";
-  } else
-    s = true;
+  }
 
-  
   if (
     playerX > x - mesh.scaleX / 2 - 3 &&
     playerX < x - mesh.scaleX / 2 + 3 &&
@@ -47,7 +48,8 @@ function collidingWithRect(mesh) {
     playerX > x + mesh.scaleX / 2 - 3 &&
     playerZ < z + mesh.scaleZ / 2 &&
     playerZ > z - mesh.scaleZ / 2 &&
-    playerY < y + mesh.scaleY && s
+    playerY < y + mesh.scaleY &&
+    s
     // !(playerY > y + mesh.scaleY)
   ) {
     return "left";
@@ -58,7 +60,8 @@ function collidingWithRect(mesh) {
     playerZ > z - mesh.scaleZ / 2 - 3 &&
     playerX > x - mesh.scaleX / 2 &&
     playerX < x + mesh.scaleX / 2 &&
-    playerY < y + mesh.scaleY && s
+    playerY < y + mesh.scaleY &&
+    s
     // !(playerY > y + mesh.scaleY)
   ) {
     return "top";
@@ -68,7 +71,8 @@ function collidingWithRect(mesh) {
     playerZ < z + mesh.scaleZ / 2 + 3 &&
     playerX > x - mesh.scaleX / 2 &&
     playerX < x + mesh.scaleX / 2 &&
-    playerY < y + mesh.scaleY && s
+    playerY < y + mesh.scaleY &&
+    s
   ) {
     return "bottom";
   }
