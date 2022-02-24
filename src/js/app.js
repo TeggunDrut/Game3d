@@ -39,8 +39,8 @@ THREE.FirstPersonControls = function (
   camera,
   MouseMoveSensitivity = 0.002,
   speed = 800.0,
-  jumpHeight = 350.0,
-  height = 30.0
+  jumpHeight = 200.0,
+  height = player.height,
 ) {
   var scope = this;
 
@@ -105,6 +105,7 @@ THREE.FirstPersonControls = function (
           velocity.y +=
             run === false ? scope.jumpHeight : scope.jumpHeight + 50;
         // canJump = false;
+        
         break;
 
       case 16: // shift
@@ -264,11 +265,10 @@ THREE.FirstPersonControls = function (
     scope.getObject().translateZ(velocity.z * delta);
 
     scope.getObject().position.y += velocity.y * delta;
-
+    
     if (scope.getObject().position.y < scope.height) {
       velocity.y = 0;
       scope.getObject().position.y = scope.height;
-
       canJump = true;
     }
     prevTime = time;
@@ -493,7 +493,7 @@ function animate() {
   // console.log(`player.x`, player.x);
   // playerMesh.position.x = player.x;
   loop();
-  
+
   renderer.render(scene, camera);
 }
 
@@ -603,7 +603,7 @@ function randomPosition(radius) {
 var Controlers = function () {
   this.MouseMoveSensitivity = 0.002;
   this.speed = 800.0;
-  this.jumpHeight = 350.0;
+  this.jumpHeight = 50.0;
   this.height = 30.0;
 };
 

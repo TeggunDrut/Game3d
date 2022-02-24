@@ -1,3 +1,4 @@
+
 function loop() {
   if (playerCollisionWithWallTop()) {
     yawObject.position.z = floor.position.z - floorHeight / 2;
@@ -20,18 +21,25 @@ function loop() {
     m.position.x = floor.position.x - floorWidth / 2 + box.x + box.scaleX / 2;
     m.position.y = box.y + box.scaleY / 2;
     m.position.z = floor.position.z - floorHeight / 2 + box.z + box.scaleZ / 2;
-    if (collidingWithRect(box) == "top") {
-      yawObject.position.z = m.position.z - box.scaleZ / 2 - 3; 
-    }
-    if (collidingWithRect(box) == "bottom") {
-      console.log('asd');
-      yawObject.position.z = m.position.z + box.scaleZ / 2 + 3; 
-    }
-    if (collidingWithRect(box) == "right") {
-      yawObject.position.x = (m.position.x - box.scaleX / 2) - 3; 
-    }
-    if (collidingWithRect(box) == "left") {
-      yawObject.position.x = (m.position.x + box.scaleX / 2) + 3; 
+    if (collidingWithRect(box) == "ontop") {
+      velocity.y = 0;
+      console.log(canJump);
+      canJump = true;
+      console.log(box.scaleY,  box.y, player.height);
+      yawObject.position.y = box.y + box.scaleY + player.height;
+    } else {
+      if (collidingWithRect(box) == "right") {
+        yawObject.position.x = m.position.x - box.scaleX / 2 - 3;
+      }
+      if (collidingWithRect(box) == "left") {
+        yawObject.position.x = m.position.x + box.scaleX / 2 + 3;
+      }
+      if (collidingWithRect(box) == "top") {
+        yawObject.position.z = m.position.z - box.scaleZ / 2 - 3;
+      }
+      if (collidingWithRect(box) == "bottom") {
+        yawObject.position.z = m.position.z + box.scaleZ / 2 + 3;
+      }
     }
   });
 }

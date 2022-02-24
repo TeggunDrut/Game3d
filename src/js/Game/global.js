@@ -49,6 +49,7 @@ let player = {
   x: 10,
   y: 10,
   z: -50,
+  height: 30,
 };
 let playerGeometry = new THREE.BoxGeometry(20, 20, 20);
 let playerMaterial = new THREE.MeshBasicMaterial({ color: "blue" });
@@ -57,3 +58,4 @@ playerMesh.castShadow = true;
 playerMesh.position.x = player.x;
 playerMesh.position.y = player.y;
 playerMesh.position.z = player.z;
+let landonbox = false;
