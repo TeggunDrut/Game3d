@@ -296,6 +296,7 @@ if (havePointerLock) {
     ) {
       paused = false;
       controls.enabled = true;
+      document.getElementById('crosshairContainer').style.left = '0';
       // instructions.style.display = 'none';
     } else {
       paused = true;
@@ -363,15 +364,6 @@ if (havePointerLock) {
 
 
 var camera, scene, renderer, controls, raycaster, arrow, world;
-
-var loader = new THREE.ObjectLoader();
-loader.load(
-  'models/Thing_.fbx',
-  function (obj) {
-    scene.add(obj);
-    console.log(obj);
-  }
-);
 
 init();
 animate();

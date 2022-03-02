@@ -8,12 +8,149 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="crosshair">
-      <div class="topBar"></div>
-      <div class="leftBar"></div>
-      <div class="rightBar"></div>
-      <div class="bottomBar"></div>
+    <div id="crosshairContainer">
+      <div class="topBox" id="topBox"></div>
+      <div class="leftBox" id="leftBox"></div>
+      <div class="rightBox" id="rightBox"></div>
+      <div class="bottomBox" id="bottomBox"></div>
     </div>
+    <div class="options" id="options">
+      <div class="title">
+        <h2>Options</h2>
+      </div>
+      <div class="optionList">
+        <div
+          class="option graphics"
+          onclick="
+        document.getElementById('mouseUI').style.display = 'none';
+            document.getElementById('crosshairUI').style.display = 'none';
+            document.getElementById('keybindUI').style.display = 'none';
+            
+            document.getElementById('crosshairContainer').style.left = '0';
+            document.getElementById('graphicsUI').style.display = 'inline-block';"
+          id="option"
+          id="option"
+        >
+          Graphics
+        </div>
+        <div
+          class="option mouse"
+          onclick="
+        document.getElementById('crosshairUI').style.display = 'none';
+            document.getElementById('graphicsUI').style.display = 'none';
+            document.getElementById('keybindUI').style.display = 'none';
+            
+            document.getElementById('mouseUI').style.display = 'inline-block';
+            document.getElementById('crosshairContainer').style.left = '0';"
+          id="option"
+        >
+          Mouse
+        </div>
+        <div
+          class="option crosshair"
+          onclick="
+          
+            document.getElementById('mouseUI').style.display = 'none';
+            document.getElementById('graphicsUI').style.display = 'none';
+            document.getElementById('keybindUI').style.display = 'none';
+            
+            document.getElementById('crosshairUI').style.display = 'inline-block';
+            document.getElementById('crosshairContainer').style.left = '60%';
+            "
+          id="option"
+        >
+          Crosshair
+        </div>
+        <div
+          class="option keybinds"
+          onclick="
+        document.getElementById('mouseUI').style.display = 'none';
+            document.getElementById('graphicsUI').style.display = 'none';
+            document.getElementById('crosshairUI').style.display = 'none';
+
+            document.getElementById('crosshairContainer').style.left = '0';
+            document.getElementById('keybindUI').style.display = 'inline-block';"
+          id="option"
+        >
+          Keybinds
+        </div>
+      </div>
+      <div class="optionUI" id="optionUI">
+        <div id="graphicsUI" style="width: 100%"></div>
+        <div id="mouseUI" style="width: 100%; display: none"></div>
+        <div id="crosshairUI" style="width: 100%; display: none">
+          <div
+            style="
+              height: 40px;
+              width: 100%;
+              display: flex;
+              justify-content: center;
+            "
+          >
+            <div
+              style="
+                width: 100px;
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+              "
+            >
+              Width
+            </div>
+            <input type="range" min="0" max="100" value="20" />
+          </div>
+          <div
+            style="
+              height: 40px;
+              width: 100%;
+              display: flex;
+              justify-content: center;
+            "
+          >
+            <div
+              style="
+                width: 100px;
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+              "
+            >
+              Length
+            </div>
+            <input type="range" min="0" max="50" value="20" />
+          </div>
+          <div
+            style="
+              height: 40px;
+              width: 100%;
+              display: flex;
+              justify-content: center;
+            "
+          >
+            <div
+              style="
+                width: 100px;
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+              "
+            >
+              Offset
+            </div>
+            <input type="range" min="0" max="100" value="20" />
+          </div>
+        </div>
+        <div id="keybindUI" style="width: 100%; display: none"></div>
+      </div>
+      <div class="reload" onclick="location.href = location.href">Reload</div>
+    </div>
+
+    <!-- <div class="crosshair"> -->
+
+    <!-- </div> -->
     <canvas id="canvas"></canvas>
     <!-- Libraries -->
     <!-- <script type="module" src="./js/three/ObjectLoader.js"></script> -->
@@ -22,12 +159,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.js"></script>
     <script src="js/Game/global.js"></script>
     <script src="js/Game/map.js"></script>
-    <script src="js/Game/logic.js"></script> <!-- collison and stuff -->
-    <script src="js/Game/game.js"></script> <!-- collison and stuff -->
+    <script src="js/Game/logic.js"></script>
+    <!-- collison and stuff -->
+    <script src="js/Game/game.js"></script>
+    <!-- collison and stuff -->
 
     <script src="js/app.js"></script>
     <script type="module">
-      
       // Import the functions you need from the SDKs you need
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.7/firebase-app.js";
       // TODO: Add SDKs for Firebase products that you want to use
@@ -45,7 +183,6 @@
 
       // Initialize Firebase
       const app = initializeApp(firebaseConfig);
-
     </script>
   </body>
 </html>

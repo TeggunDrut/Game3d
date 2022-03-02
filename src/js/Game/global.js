@@ -65,3 +65,50 @@ let ontop = true;
 let beneath = false;
 let wallDistOff = 5;
 let onGround = false;
+
+// UI
+
+let UIState = null;
+
+let UIs = ['options', 'exit']; // add others later
+
+let crosshair = {
+  length: 10,
+  width: 5,
+  offset: 20,
+  color: ["red", "blue", "cyan"][Math.floor(Math.random() * 3)],
+};
+let boxes = {
+  top: document.getElementById("topBox"),
+  left: document.getElementById("leftBox"),
+  right: document.getElementById("rightBox"),
+  bottom: document.getElementById("bottomBox"),
+};
+for (box in boxes) {
+  boxes[box].style.position = "absolute";
+  boxes[box].style.margin = "auto";
+
+  boxes[box].style.top = "0";
+  console.log(boxes[box].style.top);
+  boxes[box].style.left = "0";
+  boxes[box].style.right = "0";
+  boxes[box].style.bottom = "0";
+
+  boxes[box].style.backgroundColor = crosshair.color;
+}
+boxes.top.style.width = crosshair.width;
+
+boxes.top.style.width = crosshair.width + "px";
+boxes.bottom.style.width = crosshair.width + "px";
+boxes.top.style.height = crosshair.length + "px";
+boxes.bottom.style.height = crosshair.length + "px";
+
+boxes.left.style.width = crosshair.length + "px";
+boxes.right.style.width = crosshair.length + "px";
+boxes.left.style.height = crosshair.width + "px";
+boxes.right.style.height = crosshair.width + "px";
+
+boxes.top.style.top = crosshair.offset + "px";
+boxes.left.style.left = crosshair.offset + "px";
+boxes.right.style.right = crosshair.offset + "px";
+boxes.bottom.style.bottom = crosshair.offset + "px";

@@ -1,4 +1,3 @@
-
 function loop() {
   if (playerCollisionWithWallTop()) {
     yawObject.position.z = floor.position.z - floorHeight / 2 + wallDistOff;
@@ -42,4 +41,7 @@ function loop() {
     }
   });
   prevPlayerY = yawObject.position.y;
+  // ui
+  if (paused) document.getElementById("options").style.display = "inline-block";
+  else document.getElementById("options").style.display = "none";
 }

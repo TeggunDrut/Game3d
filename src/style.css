@@ -1,11 +1,85 @@
-html, body {
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@200&display=swap");
+
+html,
+body {
   margin: 0;
   overflow: hidden;
+  font-family: "Roboto Mono", monospace;
+  user-select: none;
 }
-.crosshair {
-  width: 5px;
-  height: 5px;
-  background-color: black;
+.options {
+  max-width: 600px;
+  /* width: 40%; */
+  max-height: 50%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  margin: auto;
+  background-color: #282f3f;
+}
+.title {
+  width: 30%;
+  height: 70px;
+  color: white;
+  text-align: center;
+  border-bottom: 1px solid white;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+.optionList {
+  width: 100%;
+  height: 40px;
+  position: absolute;
+  top: calc(70px + 10px);
+  background-color: #282f3f;
+  display: flex;
+  justify-content: center;
+}
+.option {
+  color: white;
+  width: 100px;
+  height: 40px;
+  display: flex;
+  background-color: #282f3f;
+
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+  margin-right: 10px;
+
+  border-bottom: 1px solid white;
+}
+.option:hover {
+  cursor: default;
+  background-color: #2e333f;
+}
+.optionUI {
+  position: absolute;
+  top: calc(70px + 10px + 60px);
+  /* background-color: black; */
+  width: 100%;
+  height: calc(100% - (70px + 10px + 60px));
+}
+.reload {
+  width: 100px;
+  height: 40px;
+  background-color: #2e333f;
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  color: white;
+  font-size: larger;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#crosshairContainer {
+  width: 100px;
+  height: 100px;
   position: absolute;
   top: 0;
   right: 0;
@@ -13,3 +87,14 @@ html, body {
   bottom: 0;
   margin: auto;
 }
+/* .crosshair {
+  width: 100px;
+  height: 100px;
+  background-color: rgba(0, 0, 0, 0.6);
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  margin: auto;
+} */
