@@ -249,17 +249,17 @@ THREE.FirstPersonControls = function (
       }
       if (moveRight) {
         if (playerCollisionWithWallTop()) {
-          yawObject.position.z = floor.position.z - floorHeight / 2 + wallDistOff;
+          yawObject.position.z = floor.position.z - floorHeight / 2;
           // velocity.x -= direction.x * currentSpeed * delta;
         } else if (playerCollisionWithWallBottom()) {
-          yawObject.position.z = (floor.position.z + floorHeight / 2) - 100;
+          yawObject.position.z = (floor.position.z + floorHeight / 2);
           // velocity.x -= direction.x * currentSpeed * delta;
         }
         if (playerCollisionWithWallLeft()) {
-          yawObject.position.x = floor.position.x - floorWidth / 2 + wallDistOff;
+          yawObject.position.x = floor.position.x - floorWidth / 2;
           // velocity.x -= direction.x * currentSpeed * delta;
         } else if (playerCollisionWithWallRight()) {
-          yawObject.position.x = floor.position.x + floorWidth / 2 - wallDistOff;
+          yawObject.position.x = floor.position.x + floorWidth / 2;
           // velocity.x -= direction.x * currentSpeed * delta;
         }
         velocity.x -= direction.x * currentSpeed * delta;

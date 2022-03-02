@@ -1,17 +1,17 @@
 
 function loop() {
   if (playerCollisionWithWallTop()) {
-    yawObject.position.z = floor.position.z - floorHeight / 2 - wallDistOff;
+    yawObject.position.z = floor.position.z - floorHeight / 2 + wallDistOff;
     // velocity.x -= direction.x * currentSpeed * delta;
   } else if (playerCollisionWithWallBottom()) {
-    yawObject.position.z = floor.position.z + floorHeight / 2 + wallDistOff;
+    yawObject.position.z = floor.position.z + floorHeight / 2 - wallDistOff;
     // velocity.x -= direction.x * currentSpeed * delta;
   }
   if (playerCollisionWithWallLeft()) {
-    yawObject.position.x = floor.position.x - floorWidth / 2 - wallDistOff;
+    yawObject.position.x = floor.position.x - floorWidth / 2 + wallDistOff;
     // velocity.x -= direction.x * currentSpeed * delta;
   } else if (playerCollisionWithWallRight()) {
-    yawObject.position.x = floor.position.x + floorWidth / 2 + wallDistOff;
+    yawObject.position.x = floor.position.x + floorWidth / 2 - wallDistOff;
     // velocity.x -= direction.x * currentSpeed * delta;
   }
   currentMap.forEach((box) => {
