@@ -1,6 +1,9 @@
 document.addEventListener("keydown", (e) => {
   // if (e.key == "w" && !playerCollisionWithWall()) {
   keyState[e.key] = true;
+  if (e.key == "j") {
+    alert(beneath);
+  }
   // } else {
   //   console.log(playerCollisionWithWall());
   // }
@@ -40,7 +43,7 @@ THREE.FirstPersonControls = function (
   MouseMoveSensitivity = 0.002,
   speed = 800.0,
   jumpHeight = 200.0,
-  height = player.height,
+  height = player.height
 ) {
   var scope = this;
 
@@ -78,40 +81,40 @@ THREE.FirstPersonControls = function (
 
   var onKeyDown = function (event) {
     if (scope.enabled === false) return;
+    if (!paused)
+      switch (event.keyCode) {
+        case 38: // up
+        case 87: // w
+          moveForward = true;
+          break;
 
-    switch (event.keyCode) {
-      case 38: // up
-      case 87: // w
-        moveForward = true;
-        break;
+        case 37: // left
+        case 65: // a
+          moveLeft = true;
+          break;
 
-      case 37: // left
-      case 65: // a
-        moveLeft = true;
-        break;
+        case 40: // down
+        case 83: // s
+          moveBackward = true;
+          break;
 
-      case 40: // down
-      case 83: // s
-        moveBackward = true;
-        break;
+        case 39: // right
+        case 68: // d
+          moveRight = true;
+          break;
 
-      case 39: // right
-      case 68: // d
-        moveRight = true;
-        break;
+        case 32: // space
+          if (canJump === true && !paused)
+            velocity.y +=
+              run === false ? scope.jumpHeight : scope.jumpHeight + 50;
+          // canJump = false;
 
-      case 32: // space
-        if (canJump === true)
-          velocity.y +=
-            run === false ? scope.jumpHeight : scope.jumpHeight + 50;
-        // canJump = false;
-        
-        break;
+          break;
 
-      case 16: // shift
-        run = true;
-        break;
-    }
+        case 16: // shift
+          run = true;
+          break;
+      }
   }.bind(this);
 
   var onKeyUp = function (event) {
@@ -177,101 +180,105 @@ THREE.FirstPersonControls = function (
   };
 
   scope.update = function () {
-    var time = performance.now();
-    var delta = (time - prevTime) / 1000;
+    if (!paused) {
+      var time = performance.now();
+      var delta = (time - prevTime) / 1000;
 
-    velocity.y -= 9.8 * 100.0 * delta;
-    velocity.x -= velocity.x * 10.0 * delta;
-    velocity.z -= velocity.z * 10.0 * delta;
+      velocity.y -= 9.8 * 100.0 * delta;
+      velocity.x -= velocity.x * 10.0 * delta;
+      velocity.z -= velocity.z * 10.0 * delta;
 
-    direction.z = Number(moveForward) - Number(moveBackward);
-    direction.x = Number(moveRight) - Number(moveLeft);
-    direction.normalize();
+      direction.z = Number(moveForward) - Number(moveBackward);
+      direction.x = Number(moveRight) - Number(moveLeft);
+      direction.normalize();
 
-    var currentSpeed = scope.speed;
-    if (run && (moveForward || moveBackward || moveLeft || moveRight))
-      currentSpeed = currentSpeed + currentSpeed * 1.1;
+      var currentSpeed = scope.speed;
+      if (run && (moveForward || moveBackward || moveLeft || moveRight))
+        currentSpeed = currentSpeed + currentSpeed * 1.05;
 
-    if (moveForward) {
-      if (playerCollisionWithWallTop()) {
-        yawObject.position.z = floor.position.z - floorHeight / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      } else if (playerCollisionWithWallBottom()) {
-        yawObject.position.z = floor.position.z + floorHeight / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
+      if (moveForward) {
+        if (playerCollisionWithWallTop()) {
+          yawObject.position.z = floor.position.z - floorHeight / 2;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        } else if (playerCollisionWithWallBottom()) {
+          yawObject.position.z = floor.position.z + floorHeight / 2;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        }
+        if (playerCollisionWithWallLeft()) {
+          yawObject.position.x = floor.position.x - floorWidth / 2;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        } else if (playerCollisionWithWallRight()) {
+          yawObject.position.x = floor.position.x + floorWidth / 2;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        }
+        velocity.z -= direction.z * currentSpeed * delta;
       }
-      if (playerCollisionWithWallLeft()) {
-        yawObject.position.x = floor.position.x - floorWidth / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      } else if (playerCollisionWithWallRight()) {
-        yawObject.position.x = floor.position.x + floorWidth / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
+      if (moveBackward) {
+        if (playerCollisionWithWallTop()) {
+          yawObject.position.z = floor.position.z - floorHeight / 2;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        } else if (playerCollisionWithWallBottom()) {
+          yawObject.position.z = floor.position.z + floorHeight / 2;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        }
+        if (playerCollisionWithWallLeft()) {
+          yawObject.position.x = floor.position.x - floorWidth / 2;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        } else if (playerCollisionWithWallRight()) {
+          yawObject.position.x = floor.position.x + floorWidth / 2;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        }
+        velocity.z -= direction.z * currentSpeed * delta;
       }
-      velocity.z -= direction.z * currentSpeed * delta;
+      if (moveLeft) {
+        if (playerCollisionWithWallTop()) {
+          yawObject.position.z = floor.position.z - floorHeight / 2;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        } else if (playerCollisionWithWallBottom()) {
+          yawObject.position.z = floor.position.z + floorHeight / 2;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        }
+        if (playerCollisionWithWallLeft()) {
+          yawObject.position.x = floor.position.x - floorWidth / 2;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        } else if (playerCollisionWithWallRight()) {
+          yawObject.position.x = floor.position.x + floorWidth / 2;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        }
+        velocity.x -= direction.x * currentSpeed * delta;
+      }
+      if (moveRight) {
+        if (playerCollisionWithWallTop()) {
+          yawObject.position.z = floor.position.z - floorHeight / 2 + wallDistOff;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        } else if (playerCollisionWithWallBottom()) {
+          yawObject.position.z = (floor.position.z + floorHeight / 2) - 100;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        }
+        if (playerCollisionWithWallLeft()) {
+          yawObject.position.x = floor.position.x - floorWidth / 2 + wallDistOff;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        } else if (playerCollisionWithWallRight()) {
+          yawObject.position.x = floor.position.x + floorWidth / 2 - wallDistOff;
+          // velocity.x -= direction.x * currentSpeed * delta;
+        }
+        velocity.x -= direction.x * currentSpeed * delta;
+      }
+
+      scope.getObject().translateX(-velocity.x * delta);
+      scope.getObject().translateZ(velocity.z * delta);
+
+      scope.getObject().position.y += velocity.y * delta;
+
+      if (scope.getObject().position.y < scope.height) {
+        velocity.y = 0;
+        onGround = true;
+        scope.getObject().position.y = scope.height;
+        canJump = true;
+        ontop = false;
+      }
+      prevTime = time;
     }
-    if (moveBackward) {
-      if (playerCollisionWithWallTop()) {
-        yawObject.position.z = floor.position.z - floorHeight / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      } else if (playerCollisionWithWallBottom()) {
-        yawObject.position.z = floor.position.z + floorHeight / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      }
-      if (playerCollisionWithWallLeft()) {
-        yawObject.position.x = floor.position.x - floorWidth / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      } else if (playerCollisionWithWallRight()) {
-        yawObject.position.x = floor.position.x + floorWidth / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      }
-      velocity.z -= direction.z * currentSpeed * delta;
-    }
-    if (moveLeft) {
-      if (playerCollisionWithWallTop()) {
-        yawObject.position.z = floor.position.z - floorHeight / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      } else if (playerCollisionWithWallBottom()) {
-        yawObject.position.z = floor.position.z + floorHeight / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      }
-      if (playerCollisionWithWallLeft()) {
-        yawObject.position.x = floor.position.x - floorWidth / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      } else if (playerCollisionWithWallRight()) {
-        yawObject.position.x = floor.position.x + floorWidth / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      }
-      velocity.x -= direction.x * currentSpeed * delta;
-    }
-    if (moveRight) {
-      if (playerCollisionWithWallTop()) {
-        yawObject.position.z = floor.position.z - floorHeight / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      } else if (playerCollisionWithWallBottom()) {
-        yawObject.position.z = floor.position.z + floorHeight / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      }
-      if (playerCollisionWithWallLeft()) {
-        yawObject.position.x = floor.position.x - floorWidth / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      } else if (playerCollisionWithWallRight()) {
-        yawObject.position.x = floor.position.x + floorWidth / 2;
-        // velocity.x -= direction.x * currentSpeed * delta;
-      }
-      velocity.x -= direction.x * currentSpeed * delta;
-    }
-
-    scope.getObject().translateX(-velocity.x * delta);
-    scope.getObject().translateZ(velocity.z * delta);
-
-    scope.getObject().position.y += velocity.y * delta;
-    
-    if (scope.getObject().position.y < scope.height) {
-      velocity.y = 0;
-      scope.getObject().position.y = scope.height;
-      canJump = true;
-    }
-    prevTime = time;
   };
 };
 
@@ -287,9 +294,11 @@ if (havePointerLock) {
       document.mozPointerLockElement === element ||
       document.webkitPointerLockElement === element
     ) {
+      paused = false;
       controls.enabled = true;
       // instructions.style.display = 'none';
     } else {
+      paused = true;
       controls.enabled = false;
       // instructions.style.display = '-webkit-box';
     }
@@ -352,7 +361,17 @@ if (havePointerLock) {
   instructions.innerHTML = "Your browser not suported PointerLock";
 }
 
+
 var camera, scene, renderer, controls, raycaster, arrow, world;
+
+var loader = new THREE.ObjectLoader();
+loader.load(
+  'models/Thing_.fbx',
+  function (obj) {
+    scene.add(obj);
+    console.log(obj);
+  }
+);
 
 init();
 animate();
@@ -362,7 +381,7 @@ function init() {
     75,
     window.innerWidth / window.innerHeight,
     1,
-    3000
+    1000
   );
 
   world = new THREE.Group();
@@ -447,7 +466,7 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-map1.forEach((mesh) => {
+currentMap.forEach((mesh) => {
   let geom = new THREE.BoxGeometry(mesh.scaleX, mesh.scaleY, mesh.scaleZ);
   let mat = new THREE.MeshBasicMaterial({ color: mesh.color });
   let m = new THREE.Mesh(geom, mat);

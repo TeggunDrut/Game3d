@@ -1,5 +1,6 @@
 const canvas = document.getElementById("canvas");
 // let ctx = canvas.getContext("2d");
+let paused = true;
 let keyState = {
   w: false,
   a: false,
@@ -21,12 +22,13 @@ var velocity = new THREE.Vector3();
 var direction = new THREE.Vector3();
 
 var prevTime = performance.now();
+let prevPlayerY = 0;
 
 var pitchObject = new THREE.Object3D();
 var yawObject = new THREE.Object3D();
-yawObject.position.y = 190;
+yawObject.position.y = 33;
 yawObject.position.z = 90;
-pitchObject.rotation.x = -70;
+// pitchObject.rotation.x = -70;
 
 // floor
 let floorWidth = 500;
@@ -59,3 +61,7 @@ let player = {
 // playerMesh.position.y = player.y;
 // playerMesh.position.z = player.z;
 let landonbox = false;
+let ontop = true;
+let beneath = false;
+let wallDistOff = 5;
+let onGround = false;

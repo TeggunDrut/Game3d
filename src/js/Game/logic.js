@@ -12,12 +12,30 @@ function collidingWithRect(mesh) {
   let y = m.position.y;
   let z = (m.position.z =
     floor.position.z - floorHeight / 2 + mesh.z + mesh.scaleZ / 2);
-  let s = true;
+  let s = false;
 
   if (playerY < mesh.y) {
     s = false;
-  } else {
+  } else if(!beneath){
     s = true;
+  }
+  if (
+    playerY - player.height / 2 > mesh.y - mesh.scaleY &&
+    playerY - player.height / 2 < mesh.y &&
+    playerX < x + mesh.scaleX / 2 &&
+    playerX > x - mesh.scaleX / 2 &&
+    playerZ < z + mesh.scaleZ / 2 &&
+    playerZ > z - mesh.scaleZ / 2 &&
+    !(prevPlayerY > yawObject.position.y)
+  ) {
+    if (!ontop) {
+      velocity.y = -velocity.y;
+      beneath = true;
+    }
+    // alert(yawObject.position.y + " " + mesh.y + " " + prevPlayerY);
+    // yawObject.position.y += (y - yawObject.position.y) - 3;
+  } else {
+    beneath = false;
   }
   if (
     playerY > y - mesh.scaleY / 2 &&
@@ -29,13 +47,14 @@ function collidingWithRect(mesh) {
     playerZ > z - mesh.scaleZ / 2
   ) {
     // velocity.y = 0;
-    // s = false;
+    s = false;
+    ontop = true;
     return "ontop";
   }
 
   if (
-    playerX > x - mesh.scaleX / 2 - 3 &&
-    playerX < x - mesh.scaleX / 2 + 3 &&
+    playerX > x - mesh.scaleX / 2 - wallDistOff &&
+    playerX < x - mesh.scaleX / 2 + wallDistOff &&
     playerZ < z + mesh.scaleZ / 2 &&
     playerZ > z - mesh.scaleZ / 2 &&
     playerY < y + mesh.scaleY &&
@@ -44,8 +63,8 @@ function collidingWithRect(mesh) {
   )
     return "right";
   if (
-    playerX < x + mesh.scaleX / 2 + 3 &&
-    playerX > x + mesh.scaleX / 2 - 3 &&
+    playerX < x + mesh.scaleX / 2 + wallDistOff &&
+    playerX > x + mesh.scaleX / 2 - wallDistOff &&
     playerZ < z + mesh.scaleZ / 2 &&
     playerZ > z - mesh.scaleZ / 2 &&
     playerY < y + mesh.scaleY &&
@@ -57,7 +76,7 @@ function collidingWithRect(mesh) {
 
   if (
     playerZ < z + mesh.scaleZ / 2 &&
-    playerZ > z - mesh.scaleZ / 2 - 3 &&
+    playerZ > z - mesh.scaleZ / 2 - wallDistOff &&
     playerX > x - mesh.scaleX / 2 &&
     playerX < x + mesh.scaleX / 2 &&
     playerY < y + mesh.scaleY &&
@@ -67,8 +86,8 @@ function collidingWithRect(mesh) {
     return "top";
   }
   if (
-    playerZ > z - mesh.scaleZ / 2 - 3 &&
-    playerZ < z + mesh.scaleZ / 2 + 3 &&
+    playerZ > z - mesh.scaleZ / 2 - wallDistOff &&
+    playerZ < z + mesh.scaleZ / 2 + wallDistOff &&
     playerX > x - mesh.scaleX / 2 &&
     playerX < x + mesh.scaleX / 2 &&
     playerY < y + mesh.scaleY &&
@@ -84,7 +103,7 @@ function playerCollisionWithWallLeft() {
   let x = yawObject.position.x;
   let z = yawObject.position.z;
 
-  if (x < floorX) {
+  if (x < floorX + wallDistOff) {
     return true;
   } else {
     return false;
@@ -97,7 +116,7 @@ function playerCollisionWithWallRight() {
   let x = yawObject.position.x;
   let z = yawObject.position.z;
 
-  if (x > floorX + floorWidth) {
+  if (x > floorX + floorWidth - wallDistOff) {
     return true;
   } else {
     return false;
@@ -110,7 +129,7 @@ function playerCollisionWithWallTop() {
   let x = yawObject.position.x;
   let z = yawObject.position.z;
 
-  if (z < floorZ) {
+  if (z < floorZ + wallDistOff) {
     return true;
   } else {
     return false;
@@ -122,7 +141,7 @@ function playerCollisionWithWallBottom() {
   let x = yawObject.position.x;
   let z = yawObject.position.z;
 
-  if (z > floorZ + floorHeight) {
+  if (z > floorZ + floorHeight - wallDistOff) {
     return true;
   } else {
     return false;

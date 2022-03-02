@@ -1,20 +1,20 @@
 
 function loop() {
   if (playerCollisionWithWallTop()) {
-    yawObject.position.z = floor.position.z - floorHeight / 2;
+    yawObject.position.z = floor.position.z - floorHeight / 2 - wallDistOff;
     // velocity.x -= direction.x * currentSpeed * delta;
   } else if (playerCollisionWithWallBottom()) {
-    yawObject.position.z = floor.position.z + floorHeight / 2;
+    yawObject.position.z = floor.position.z + floorHeight / 2 + wallDistOff;
     // velocity.x -= direction.x * currentSpeed * delta;
   }
   if (playerCollisionWithWallLeft()) {
-    yawObject.position.x = floor.position.x - floorWidth / 2;
+    yawObject.position.x = floor.position.x - floorWidth / 2 - wallDistOff;
     // velocity.x -= direction.x * currentSpeed * delta;
   } else if (playerCollisionWithWallRight()) {
-    yawObject.position.x = floor.position.x + floorWidth / 2;
+    yawObject.position.x = floor.position.x + floorWidth / 2 + wallDistOff;
     // velocity.x -= direction.x * currentSpeed * delta;
   }
-  map1.forEach((box) => {
+  currentMap.forEach((box) => {
     let geom = new THREE.BoxGeometry(box.scaleX, box.scaleY, box.scaleZ);
     let mat = new THREE.MeshBasicMaterial({ color: box.color });
     let m = new THREE.Mesh(geom, mat);
@@ -28,17 +28,18 @@ function loop() {
       // pitchObject.position.y = box.y + player.height / 2w;
     } else {
       if (collidingWithRect(box) == "right") {
-        yawObject.position.x = m.position.x - box.scaleX / 2 - 3;
+        yawObject.position.x = m.position.x - box.scaleX / 2 - wallDistOff;
       }
       if (collidingWithRect(box) == "left") {
-        yawObject.position.x = m.position.x + box.scaleX / 2 + 3;
+        yawObject.position.x = m.position.x + box.scaleX / 2 + wallDistOff;
       }
       if (collidingWithRect(box) == "top") {
-        yawObject.position.z = m.position.z - box.scaleZ / 2 - 3;
+        yawObject.position.z = m.position.z - box.scaleZ / 2 - wallDistOff;
       }
       if (collidingWithRect(box) == "bottom") {
-        yawObject.position.z = m.position.z + box.scaleZ / 2 + 3;
+        yawObject.position.z = m.position.z + box.scaleZ / 2 + wallDistOff;
       }
     }
   });
+  prevPlayerY = yawObject.position.y;
 }
