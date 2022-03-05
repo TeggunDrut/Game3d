@@ -14,7 +14,30 @@
       <div class="rightBox" id="rightBox"></div>
       <div class="bottomBox" id="bottomBox"></div>
     </div>
-    <div class="options" id="options">
+    <div class="inventory">
+      <div class="slot1 slot selected" id="slot1">
+        <p class="slotNum">1</p>
+      </div>
+      <div class="slot2 slot" id="slot2">
+          <p class="slotNum">2</p>
+      </div>
+      <div class="slot3 slot" id="slot3">
+        <p class="slotNum">3</p>
+      </div>
+      <div class="slot4 slot" id="slot4">
+        <p class="slotNum">4</p>
+      </div>
+      <div class="slot5 slot" id="slot5">
+        <p class="slotNum">5</p>
+      </div>
+      <div class="slot6 slot" id="slot6">
+        <p class="slotNum">6</p>
+      </div>
+      <div class="slot7 slot" id="slot7">
+        <p class="slotNum">7</p>
+      </div>
+    </div>
+    <div class="options" id="options" style="display: none">
       <div class="title">
         <h2>Options</h2>
       </div>
@@ -26,6 +49,7 @@
             document.getElementById('crosshairUI').style.display = 'none';
             document.getElementById('keybindUI').style.display = 'none';
             
+            document.getElementById('crosshairContainer').style.backgroundColor = 'transparent';
             document.getElementById('crosshairContainer').style.left = '0';
             document.getElementById('graphicsUI').style.display = 'inline-block';"
           id="option"
@@ -41,6 +65,7 @@
             document.getElementById('keybindUI').style.display = 'none';
             
             document.getElementById('mouseUI').style.display = 'inline-block';
+            document.getElementById('crosshairContainer').style.backgroundColor = 'transparent';
             document.getElementById('crosshairContainer').style.left = '0';"
           id="option"
         >
@@ -55,7 +80,9 @@
             document.getElementById('keybindUI').style.display = 'none';
             
             document.getElementById('crosshairUI').style.display = 'inline-block';
-            document.getElementById('crosshairContainer').style.left = '60%';
+            document.getElementById('crosshairContainer').style.left = '70%';
+            document.getElementById('crosshairContainer').style.backgroundColor = '#2e333f';
+            
             "
           id="option"
         >
@@ -68,6 +95,7 @@
             document.getElementById('graphicsUI').style.display = 'none';
             document.getElementById('crosshairUI').style.display = 'none';
 
+            document.getElementById('crosshairContainer').style.backgroundColor = 'transparent';
             document.getElementById('crosshairContainer').style.left = '0';
             document.getElementById('keybindUI').style.display = 'inline-block';"
           id="option"
@@ -98,7 +126,14 @@
             >
               Width
             </div>
-            <input type="range" min="0" max="100" value="20" />
+            <input
+              id="range"
+              type="range"
+              min="0"
+              max="100"
+              value="20"
+              onchange="crosshair.width = this.value; changeCrosshair();"
+            />
           </div>
           <div
             style="
@@ -119,7 +154,15 @@
             >
               Length
             </div>
-            <input type="range" min="0" max="50" value="20" />
+            <input
+              id="range"
+              type="range"
+              min="0"
+              max="50"
+              value="20"
+              onchange="crosshair.length = this.value; changeCrosshair();"
+            />
+            <div class="currentValue"></div>
           </div>
           <div
             style="
@@ -140,7 +183,14 @@
             >
               Offset
             </div>
-            <input type="range" min="0" max="100" value="20" />
+            <input
+              id="range"
+              type="range"
+              min="0"
+              max="100"
+              value="20"
+              onchange="crosshair.offset = this.value; changeCrosshair();"
+            />
           </div>
         </div>
         <div id="keybindUI" style="width: 100%; display: none"></div>
@@ -151,6 +201,7 @@
     <!-- <div class="crosshair"> -->
 
     <!-- </div> -->
+    <!-- <div class="lockPointerContainer" id="lockPointerContainer"></div> -->
     <canvas id="canvas"></canvas>
     <!-- Libraries -->
     <!-- <script type="module" src="./js/three/ObjectLoader.js"></script> -->
@@ -158,6 +209,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.js"></script>
     <script src="js/Game/global.js"></script>
+    <script src="js/Game/grid.js"></script>
+    <script src="js/Game/inventory.js"></script>
     <script src="js/Game/map.js"></script>
     <script src="js/Game/logic.js"></script>
     <!-- collison and stuff -->

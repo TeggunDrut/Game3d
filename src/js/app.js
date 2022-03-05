@@ -1,41 +1,46 @@
 document.addEventListener("keydown", (e) => {
-  // if (e.key == "w" && !playerCollisionWithWall()) {
   keyState[e.key] = true;
-  if (e.key == "j") {
-    alert(beneath);
+  switch (e.key) {
+    case "1":
+      if (!(selectedSlot.id == 1)) {
+        selectedSlot = inventorySlots[0];
+        addHeldItemToScene();
+      }
+      break;
+    case "2":
+      removeHeldItems();
+      selectedSlot = inventorySlots[1];
+      break;
+    case "3":
+      selectedSlot = inventorySlots[2];
+      break;
+    case "4":
+      selectedSlot = inventorySlots[3];
+      break;
+    case "5":
+      selectedSlot = inventorySlots[4];
+      break;
+    case "6":
+      selectedSlot = inventorySlots[5];
+      break;
+    case "7":
+      selectedSlot = inventorySlots[6];
+      break;
   }
-  // } else {
-  //   console.log(playerCollisionWithWall());
-  // }
-  // if (e.key == "s" && !playerCollisionWithWall()) {
-  //   keyState[e.key] = true;
-  // }
-  // if (e.key == "a" && !playerCollisionWithWall()) {
-  //   keyState[e.key] = true;
-  // }
-  // if (e.key == "d" && !playerCollisionWithWall()) {
-  //   keyState[e.key] = true;
-  // }
-  // if (e.key == " ") {
-  //   keyState.Space = true;
-  // }
+  if (e.key == " ") {
+    if (canJump === true && !paused && availableJump)
+      velocity.y += player.jumpHeight;
+    canJump = false;
+    availableJump = false;
+  }
+  if (e.key == "j") {
+    alert(yawObject.rotation.y);
+  }
 });
 document.addEventListener("keyup", (e) => {
-  // if (e.key == "w" && !playerCollisionWithWall()) {
-  //   keyState[e.key] = false;
-  // }
-  // if (e.key == "s" && !playerCollisionWithWall()) {
-  //   keyState[e.key] = false;
-  // }
-  // if (e.key == "a" && !playerCollisionWithWall()) {
-  //   keyState[e.key] = false;
-  // }
-  // if (e.key == "d" && !playerCollisionWithWall()) {
-  //   keyState[e.key] = false;
-  // }
-  // if (e.key == " ") {
-  //   keyState.Space = false;
-  // }
+  if (e.key == " ") {
+    availableJump = true;
+  }
   keyState[e.key] = false;
 });
 THREE.FirstPersonControls = function (
@@ -56,9 +61,9 @@ THREE.FirstPersonControls = function (
   camera.rotation.set(0, 0, 0);
   direction.y = 10;
 
-  pitchObject.add(camera);
+  // pitchObject.add(camera);
 
-  yawObject.add(pitchObject);
+  yawObject.add(camera);
 
   var PI_2 = Math.PI / 2;
 
@@ -71,12 +76,11 @@ THREE.FirstPersonControls = function (
       event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
     yawObject.rotation.y -= movementX * scope.MouseMoveSensitivity;
-    pitchObject.rotation.x -= movementY * scope.MouseMoveSensitivity;
+    itemHolder.rotation.y -= movementX * scope.MouseMoveSensitivity;
+    // itemHolder.rotation.x -= movementY * scope.MouseMoveSensitivity;
+    camera.rotation.x -= movementY * scope.MouseMoveSensitivity;
 
-    pitchObject.rotation.x = Math.max(
-      -PI_2,
-      Math.min(PI_2, pitchObject.rotation.x)
-    );
+    camera.rotation.x = Math.max(-PI_2, Math.min(PI_2, camera.rotation.x));
   };
 
   var onKeyDown = function (event) {
@@ -103,13 +107,9 @@ THREE.FirstPersonControls = function (
           moveRight = true;
           break;
 
-        case 32: // space
-          if (canJump === true && !paused)
-            velocity.y +=
-              run === false ? scope.jumpHeight : scope.jumpHeight + 50;
-          // canJump = false;
+        // case 32: // space
 
-          break;
+        //   break;
 
         case 16: // shift
           run = true;
@@ -252,7 +252,7 @@ THREE.FirstPersonControls = function (
           yawObject.position.z = floor.position.z - floorHeight / 2;
           // velocity.x -= direction.x * currentSpeed * delta;
         } else if (playerCollisionWithWallBottom()) {
-          yawObject.position.z = (floor.position.z + floorHeight / 2);
+          yawObject.position.z = floor.position.z + floorHeight / 2;
           // velocity.x -= direction.x * currentSpeed * delta;
         }
         if (playerCollisionWithWallLeft()) {
@@ -288,19 +288,34 @@ var havePointerLock =
   "webkitPointerLockElement" in document;
 if (havePointerLock) {
   var element = document.body;
+  var element2 = document.getElementById("lockPointerContainer");
+
   var pointerlockchange = function (event) {
     if (
       document.pointerLockElement === element ||
       document.mozPointerLockElement === element ||
       document.webkitPointerLockElement === element
+      // document.pointerLockElement === element2 ||
+      // document.mozPointerLockElement === element2 ||
+      // document.webkitPointerLockElement === element2
     ) {
       paused = false;
       controls.enabled = true;
-      document.getElementById('crosshairContainer').style.left = '0';
+      document.getElementById("crosshairContainer").style.left = "0";
+      document.getElementById("crosshairContainer").style.backgroundColor =
+        "transparent";
       // instructions.style.display = 'none';
     } else {
       paused = true;
       controls.enabled = false;
+      if (
+        document.getElementById("crosshairUI").style.display == "inline-block"
+      ) {
+        document.getElementById("crosshairContainer").style.left = "70%";
+        document.getElementById("crosshairContainer").style.backgroundColor =
+          "#2e333f";
+      }
+
       // instructions.style.display = '-webkit-box';
     }
   };
@@ -361,7 +376,6 @@ if (havePointerLock) {
 } else {
   instructions.innerHTML = "Your browser not suported PointerLock";
 }
-
 
 var camera, scene, renderer, controls, raycaster, arrow, world;
 
