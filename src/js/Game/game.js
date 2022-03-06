@@ -1,6 +1,5 @@
 let clock = new THREE.Clock();
 let delta = 0;
-
 function loop() {
   delta = clock.getDelta();
   if (playerCollisionWithWallTop()) {
@@ -62,58 +61,60 @@ function loop() {
   let slot5 = document.getElementById("slot5");
   let slot6 = document.getElementById("slot6");
   let slot7 = document.getElementById("slot7");
-  slots.push(slot1, slot2, slot3, slot4, slot5, slot6, slot7);
-  switch (selectedSlot.id) {
-    case 1:
-      slots.forEach((slot) => {
-        slot.classList.remove("selected");
-      });
-      slot1.classList.add("selected");
 
-      // alert(1)
-      break;
-    case 2:
-      slots.forEach((slot) => {
-        slot.classList.remove("selected");
-      });
-      slot2.classList.add("selected");
-      // alert(1)
-      break;
-    case 3:
-      slots.forEach((slot) => {
-        slot.classList.remove("selected");
-      });
-      slot3.classList.add("selected");
-      // alert(1)
-      break;
-    case 4:
-      slots.forEach((slot) => {
-        slot.classList.remove("selected");
-      });
-      slot4.classList.add("selected");
-      // alert(1)
-      break;
-    case 5:
-      slots.forEach((slot) => {
-        slot.classList.remove("selected");
-      });
-      slot5.classList.add("selected");
-      // alert(1)
-      break;
-    case 6:
-      slots.forEach((slot) => {
-        slot.classList.remove("selected");
-      });
-      slot6.classList.add("selected");
-      // alert(1)
-      break;
-    case 7:
-      slots.forEach((slot) => {
-        slot.classList.remove("selected");
-      });
-      slot7.classList.add("selected");
-      // alert(1)
-      break;
+  slots.push(slot1, slot2, slot3, slot4, slot5, slot6, slot7);
+  if(!paused)
+    switch (selectedSlot.id) {
+      case 1:
+        slots.forEach((slot) => {
+          slot.classList.remove("selected");
+        });
+        slot1.classList.add("selected");
+
+        // alert(1)
+        break;
+      case 2:
+        slots.forEach((slot) => {
+          slot.classList.remove("selected");
+        });
+        slot2.classList.add("selected");
+        // alert(1)
+        break;
+      case 3:
+        slots.forEach((slot) => {
+          slot.classList.remove("selected");
+        });
+        slot3.classList.add("selected");
+        // alert(1)
+        break;
+      case 4:
+        slots.forEach((slot) => {
+          slot.classList.remove("selected");
+        });
+        slot4.classList.add("selected");
+        // alert(1)
+        break;
+      case 5:
+        slots.forEach((slot) => {
+          slot.classList.remove("selected");
+        });
+        slot5.classList.add("selected");
+        // alert(1)
+        break;
+      case 6:
+        slots.forEach((slot) => {
+          slot.classList.remove("selected");
+        });
+        slot6.classList.add("selected");
+        // alert(1)
+        break;
+      case 7:
+        slots.forEach((slot) => {
+          slot.classList.remove("selected");
+        });
+        slot7.classList.add("selected");
+        // alert(1)
+        break;
   }
 
   bullets.forEach((bullet) => {
@@ -125,7 +126,13 @@ function loop() {
   });
   itemHolder.position.x = yawObject.position.x;
   itemHolder.position.z = yawObject.position.z;
+  itemHolder.position.y = yawObject.position.y;
 
-  drawGrid();
-  scene.remove(scene.getObjectByName('gridLine'));
+  if (isCloseTo(yawObject, { position: { x: 0, z: 0 } }, 100)) {
+    
+  }
+  if (cameraDistance(camera) < player.placeDistance*10) {
+    player.placeable = true;
+  }
+  // console.log(cameraDistance(camera));
 }

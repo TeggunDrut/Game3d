@@ -46,6 +46,7 @@ var floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.rotation.x = -Math.PI / 2;
 floor.position.y = -0.5;
 floor.receiveShadow = true;
+floor.name = "floor";
 
 let player = {
   x: 10,
@@ -53,6 +54,21 @@ let player = {
   z: -50,
   height: 30,
   jumpHeight: 200,
+  placeDistance: 6,
+  leftClick: function () {
+    if (firstShot && selectedSlot.selected.type == "gun") {
+      shoot(10, 10, 10);
+      firstShot = false;
+    }
+    if (!shooting && mouseDown && selectedSlot.selected.type == "gun")
+      shootLoop = setInterval(() => {
+        shoot(10, 10, 10);
+        // clearInterval(shootLoop);
+      }, 100);
+  },
+  rightClick: function () {
+    
+  },
 };
 // let playerGeometry = new THREE.BoxGeometry(20, 20, 20);
 // let playerMaterial = new THREE.MeshBasicMaterial({ color: "blue" });
@@ -118,18 +134,18 @@ function changeCrosshair() {
 changeCrosshair();
 
 let itemHolder = new THREE.Object3D();
+itemHolder.name = "itemHolder";
 itemHolder.position.copy(yawObject.position);
 
-
 let inventorySlots = [
-  { id: 1, selected: {}},
-  { id: 2, selected: {}},
-  { id: 3, selected: {}},
-  { id: 4, selected: {}},
-  { id: 5, selected: {}},
-  { id: 6, selected: {}},
-  { id: 7, selected: {}},
-]
+  { id: 1, selected: {} },
+  { id: 2, selected: {} },
+  { id: 3, selected: {} },
+  { id: 4, selected: {} },
+  { id: 5, selected: {} },
+  { id: 6, selected: {} },
+  { id: 7, selected: {} },
+];
 
 let selectedSlot = inventorySlots[0];
 
@@ -170,7 +186,7 @@ function shoot(x, y, z) {
   piece.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   cube = new THREE.Mesh(piece, material);
   cube.position.y = 0;
-scene.add(cube)
+  // scene.add(cube);
 
   let bullet = new THREE.Mesh(piece, material);
   let distance = new THREE.Vector3();
@@ -181,30 +197,34 @@ scene.add(cube)
   bullet.position.copy(yawObject.getWorldPosition(distance));
   // bullet.rotation.copy(pitchObject.rotation);s
 
-  bullet.rotateX(pitchObject.rotation.x);
+  bullet.rotateX(camera.rotation.x);
   bullet.rotateY(yawObject.rotation.y);
-  bullet.rotateZ(yawObject.rotation.z);
+  bullet.rotateZ(pitchObject.rotation.z);
 
   // bullet.quaternion.copy(camera.quaternion);
 
   // alert(bullet.position.y)
   bullet.castShadow = true;
   bullet.receiveShadow = true;
+  bullet.name = "bullet";
   scene.add(bullet);
 
   bullets.push({ b: bullet, x: x, y: y, z: z });
 }
 let shootLoop;
+let firstShot = true;
 document.addEventListener("mousedown", (e) => {
   mouseDown = true;
-  if (!shooting && mouseDown)
-    shootLoop = setInterval(() => {
-      shoot(10, 10, 10);
-      // clearInterval(shootLoop);
-    }, 100);
+  if (e.button == 0) {
+    player.leftClick();
+  }
+  if (e.button == 2) {
+    player.rightClick();
+  }
 });
 document.addEventListener("mouseup", (e) => {
   mouseDown = false;
+  firstShot = true;
   shooting = false;
   clearInterval(shootLoop);
 });
