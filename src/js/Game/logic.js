@@ -5,6 +5,7 @@ function collidingWithRect(mesh) {
   let geom = new THREE.BoxGeometry(mesh.scaleX, mesh.scaleY, mesh.scaleZ);
   let mat = new THREE.MeshBasicMaterial({ color: mesh.color });
   let m = new THREE.Mesh(geom, mat);
+  m.name = "block";
   m.position.x = mesh.x;
   m.position.y = mesh.y;
   m.position.z = mesh.z;

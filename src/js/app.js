@@ -8,10 +8,12 @@ document.addEventListener("keydown", (e) => {
       }
       break;
     case "2":
+      getDistance(yawObject.position.x, yawObject.position.z, 0, 0);
       removeHeldItems();
       selectedSlot = inventorySlots[1];
       break;
     case "3":
+      console.log(yawObject.position.x, yawObject.position.z);
       selectedSlot = inventorySlots[2];
       break;
     case "4":
@@ -30,13 +32,14 @@ document.addEventListener("keydown", (e) => {
   if (e.key == " ") {
     if (canJump === true && !paused && availableJump)
       velocity.y += player.jumpHeight;
-    canJump = false;
-    availableJump = false;
+    // canJump = false;
+    availableJump = true;
   }
   if (e.key == "j") {
     alert(yawObject.rotation.y);
   }
 });
+
 document.addEventListener("keyup", (e) => {
   if (e.key == " ") {
     availableJump = true;
@@ -150,13 +153,13 @@ THREE.FirstPersonControls = function (
   }.bind(this);
 
   var onMouseDownClick = function (event) {
-    if (scope.enabled === false) return;
-    scope.click = true;
+    // if (scope.enabled === false) return;
+    // scope.click = true;
   }.bind(this);
 
   var onMouseUpClick = function (event) {
-    if (scope.enabled === false) return;
-    scope.click = false;
+    // if (scope.enabled === false) return;
+    // scope.click = false;
   }.bind(this);
 
   scope.dispose = function () {
@@ -403,7 +406,7 @@ function init() {
   scene.fog = new THREE.Fog(0xffffff, 0, 2000);
   //scene.fog = new THREE.FogExp2 (0xffffff, 0.007);
 
-  world.add(floor);
+  scene.add(floor);
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -461,7 +464,16 @@ function init() {
   //   mesh.matrixAutoUpdate = false;
   //   world.add(mesh);
   // }
+  const size = floorWidth;
+  const divisions = 45;
 
+  const gridHelper = new THREE.GridHelper(size, divisions, "blue", "red");
+  // scene.add(gridHelper);
+
+  let zerozeroMarker = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshBasicMaterial({ color: "red" }));
+  zerozeroMarker.name = "zerozeroMarker";
+
+  scene.add(zerozeroMarker);
   scene.add(world);
 }
 

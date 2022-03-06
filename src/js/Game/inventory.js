@@ -7,7 +7,7 @@ function addHeldItemToScene() {
   let item = new THREE.Mesh(itemGeom, itemMat);
 
   item.position.x = 3;
-  item.position.y = -5;
+  item.position.y = -2;
   item.position.z = -3;
 
   itemHolder.add(item);
@@ -15,4 +15,5 @@ function addHeldItemToScene() {
 }
 function removeHeldItems() {
   scene.remove(scene.getObjectByName("itemHolder"));
+  console.log(scene.getObjectByName("itemHolder"));
 }
