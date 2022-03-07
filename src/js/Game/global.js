@@ -48,6 +48,25 @@ floor.position.y = -0.5;
 floor.receiveShadow = true;
 floor.name = "floor";
 
+let gridBoxes = [[]];
+let indexRow = 0;
+let indexCol = 0;
+
+// let numx = cameraDistance(camera).x;
+// let numz = cameraDistance(camera).z;
+
+// let newX = numx - floorWidth
+
+for (let i = -floorWidth / 2; i < floorWidth / 2; i += 45 / 4) {
+  indexRow += 1;
+  gridBoxes.push({ x: i });
+  for (let j = -floorWidth / 2; j < floorWidth / 2; j += 45 / 4) {
+    indexCol++;
+    gridBoxes.push({ x: i });
+    console.log(j);
+  }
+}
+console.log(indexRow, indexCol);
 let player = {
   x: 10,
   y: 10,
@@ -67,7 +86,11 @@ let player = {
       }, 100);
   },
   rightClick: function () {
-    
+    if (selectedSlot.selected.type == "placeable") {
+      if (cameraDistance(camera).dist < player.placeDistance * 10) {
+        placeObject(selectedSlot.selected);
+      }
+    }
   },
 };
 // let playerGeometry = new THREE.BoxGeometry(20, 20, 20);
@@ -138,7 +161,17 @@ itemHolder.name = "itemHolder";
 itemHolder.position.copy(yawObject.position);
 
 let inventorySlots = [
-  { id: 1, selected: {} },
+  {
+    id: 1,
+    selected: {
+      type: "placeable",
+      shape: "box",
+      name: `conveyor, -${Math.floor(Math.random() * 100)}`,
+      goem: new THREE.BoxBufferGeometry(5, 5, 5),
+      mat: new THREE.MeshBasicMaterial({ color: "blue" }),
+      
+    },
+  },
   { id: 2, selected: {} },
   { id: 3, selected: {} },
   { id: 4, selected: {} },

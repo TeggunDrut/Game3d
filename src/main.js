@@ -8,6 +8,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
+camera.position.y = player.height + 3;
 
 const renderer = new THREE.WebGLRenderer({ canvas: canvas });
 renderer.setSize(window.innerWidth, window.innerHeight);

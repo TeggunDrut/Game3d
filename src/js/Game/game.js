@@ -131,8 +131,6 @@ function loop() {
   if (isCloseTo(yawObject, { position: { x: 0, z: 0 } }, 100)) {
     
   }
-  if (cameraDistance(camera) < player.placeDistance*10) {
-    player.placeable = true;
-  }
+  
   // console.log(cameraDistance(camera));
 }

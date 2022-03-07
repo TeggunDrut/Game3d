@@ -18,6 +18,7 @@ document.addEventListener("keydown", (e) => {
       break;
     case "4":
       selectedSlot = inventorySlots[3];
+      placeObject(yawObject);
       break;
     case "5":
       selectedSlot = inventorySlots[4];
@@ -468,7 +469,7 @@ function init() {
   const divisions = 45;
 
   const gridHelper = new THREE.GridHelper(size, divisions, "blue", "red");
-  // scene.add(gridHelper);
+  scene.add(gridHelper);
 
   let zerozeroMarker = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshBasicMaterial({ color: "red" }));
   zerozeroMarker.name = "zerozeroMarker";
@@ -476,7 +477,9 @@ function init() {
   scene.add(zerozeroMarker);
   scene.add(world);
 }
-
+function addToScene(obj) {
+  scene.add(obj);
+}
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
