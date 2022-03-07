@@ -9,7 +9,12 @@ let keyState = {
   Space: false,
   Shift: false,
   Control: false,
+}; 
+
+let gameConsole = {
+  open: false
 };
+
 var moveForward = false;
 var moveBackward = false;
 var moveLeft = false;
@@ -87,8 +92,9 @@ let player = {
   },
   rightClick: function () {
     if (selectedSlot.selected.type == "placeable") {
+      placeObject(selectedSlot.selected);
+
       if (cameraDistance(camera).dist < player.placeDistance * 10) {
-        placeObject(selectedSlot.selected);
       }
     }
   },
@@ -167,9 +173,11 @@ let inventorySlots = [
       type: "placeable",
       shape: "box",
       name: `conveyor, -${Math.floor(Math.random() * 100)}`,
-      goem: new THREE.BoxBufferGeometry(5, 5, 5),
+      goem: new THREE.BoxBufferGeometry(10, 10, 10),
       mat: new THREE.MeshBasicMaterial({ color: "blue" }),
-      
+      scaleX: 10,
+      scaleY: 10,
+      scaleZ: 10
     },
   },
   { id: 2, selected: {} },
@@ -247,13 +255,16 @@ function shoot(x, y, z) {
 let shootLoop;
 let firstShot = true;
 document.addEventListener("mousedown", (e) => {
-  mouseDown = true;
-  if (e.button == 0) {
-    player.leftClick();
-  }
-  if (e.button == 2) {
+  if (!paused) {
     player.rightClick();
+    mouseDown = true;
+    if (e.button == 0) {
+    }
+    if (e.button == 2) {
+      player.rightClick();
+    }  
   }
+  
 });
 document.addEventListener("mouseup", (e) => {
   mouseDown = false;

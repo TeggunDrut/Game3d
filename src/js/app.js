@@ -1,5 +1,8 @@
 document.addEventListener("keydown", (e) => {
   keyState[e.key] = true;
+  if (e.key == "`" || e.key == "~") {
+    gameConsole.open = !gameConsole.open;
+  }
   switch (e.key) {
     case "1":
       if (!(selectedSlot.id == 1)) {
@@ -37,7 +40,6 @@ document.addEventListener("keydown", (e) => {
     availableJump = true;
   }
   if (e.key == "j") {
-    alert(yawObject.rotation.y);
   }
 });
 

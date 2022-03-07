@@ -128,6 +128,12 @@ function loop() {
   itemHolder.position.z = yawObject.position.z;
   itemHolder.position.y = yawObject.position.y;
 
+  if (gameConsole.open) {
+    document.getElementById("console").style.display = "inline-block";
+  } else {
+    document.getElementById("console").style.display = "none";
+  }
+
   if (isCloseTo(yawObject, { position: { x: 0, z: 0 } }, 100)) {
     
   }
