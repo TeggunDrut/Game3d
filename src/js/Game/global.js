@@ -92,10 +92,12 @@ let player = {
       }, 100);
   },
   rightClick: function () {
-    if (selectedSlot.selected.type == "placeable") {
-      placeObject(selectedSlot.selected);
-
-      if (cameraDistance(camera).dist < player.placeDistance * 10) {
+    if (
+      selectedSlot.selected.type == "placeable" &&
+      cameraDistance(camera) != undefined
+    ) {
+      if (cameraDistance(camera).distance < player.placeDistance * 10) {
+        placeObject(selectedSlot.selected);
       }
     }
   },
@@ -114,6 +116,10 @@ let wallDistOff = 5;
 let onGround = false;
 let availableJump = true;
 // UI
+let scene = new THREE.Scene();
+scene.background = new THREE.Color(0xffffff);
+scene.fog = new THREE.Fog(0xffffff, 0, 2000);
+
 let renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -122,6 +128,16 @@ renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 renderer.outputEncoding = THREE.sRGBEncoding;
 
+let camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  1,
+  1000
+);
+raycaster = new THREE.Raycaster(
+  camera.getWorldPosition(new THREE.Vector3()),
+  camera.getWorldDirection(new THREE.Vector3())
+);
 let UIState = null;
 
 let UIs = ["options", "exit"]; // add others later
@@ -174,21 +190,43 @@ let itemHolder = new THREE.Object3D();
 itemHolder.name = "itemHolder";
 itemHolder.position.copy(yawObject.position);
 
+let rep;
+
 let inventorySlots = [
   {
     id: 1,
     selected: {
       type: "placeable",
       shape: "box",
-      name: `conveyor, -${Math.floor(Math.random() * 100)}`,
-      goem: new THREE.BoxBufferGeometry(10, 10, 10),
-      mat: new THREE.MeshBasicMaterial({ color: "yellow" }),
       scaleX: 10,
       scaleY: 10,
       scaleZ: 10,
+      blockType: "conveyor",
+      r: 0.39215686274509803,
+      g: 0.7843137254901961,
+      b: 0.39215686274509803,
+      red: 0,
+      green: 255,
+      blue: 0,
     },
   },
-  { id: 2, selected: {} },
+  {
+    id: 2,
+    selected: {
+      type: "placeable",
+      shape: "box",
+      scaleX: 1,
+      scaleY: 10,
+      scaleZ: 10,
+      blockType: "conveyor",
+      r: 1,
+      g: 0,
+      b: 0,
+      red: 255,
+      green: 0,
+      blue: 0,
+    },
+  },
   { id: 3, selected: {} },
   { id: 4, selected: {} },
   { id: 5, selected: {} },

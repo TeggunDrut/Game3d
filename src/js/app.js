@@ -1,5 +1,5 @@
-// import * as THREE from "./three/module.three.js";
-// import { EffectComposer } from "../jsm/postprocessing/EffectComposer.js";
+// import * as THREE from "three";
+// import { EffectComposer } from "../postprocessing/EffectComposer.js";
 document.addEventListener("keydown", (e) => {
   keyState[e.key] = true;
   if (e.key == "`" || e.key == "~") {
@@ -69,7 +69,7 @@ THREE.FirstPersonControls = function (
   camera.rotation.set(0, 0, 0);
   direction.y = 10;
 
-  // pitchObject.add(camera);
+  pitchObject.add(camera);
 
   yawObject.add(camera);
 
@@ -89,6 +89,28 @@ THREE.FirstPersonControls = function (
     camera.rotation.x -= movementY * scope.MouseMoveSensitivity;
 
     camera.rotation.x = Math.max(-PI_2, Math.min(PI_2, camera.rotation.x));
+    // if (yawObject.rotation.y * 180 / Math.PI > 360) {
+    //   let diff = yawObject.rotation.y * 180 / Math.PI - 360;
+    //   yawObject.rotation.y = diff;
+
+    // }
+    // if (yawObject.rotation.y * 180 / Math.PI < -360) {
+    //   let diff = yawObject.rotation.y * 180 / Math.PI + 360;
+    //   yawObject.rotation.y = diff;
+
+    // }
+    // console.log(camera.rotation.x * 180/Math.PI);
+    //     itemHolder.rotation.x = -Math.max(-PI_2, Math.min(PI_2, camera.rotation.x));
+    // itemHolder.rotation.x = camera.rotation.x;
+    // console.log(itemHolder.children[0]);
+    // itemHolder.rotation.copy(camera.rotation);
+    // rep.rotation.x = camera.rotation.x;
+    // rep.rotation.y = yawObject.rotation.y;
+    // rep.position.x = itemHolder.position.x;
+    // rep.position.y = itemHolder.position.y;
+    // rep.position.z = itemHolder.position.z - 10;
+
+    // itemHolder.children[0].rotation.copy(rep.rotation);
   };
 
   var onKeyDown = function (event) {
@@ -385,31 +407,22 @@ if (havePointerLock) {
   instructions.innerHTML = "Your browser not suported PointerLock";
 }
 
-var camera, scene, controls, raycaster, arrow, world;
+var controls, arrow, world;
 
 init();
 animate();
 
 function init() {
-  camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    1,
-    1000
-  );
-
   world = new THREE.Group();
 
-  raycaster = new THREE.Raycaster(
-    camera.getWorldPosition(new THREE.Vector3()),
-    camera.getWorldDirection(new THREE.Vector3())
-  );
   // arrow = new THREE.ArrowHelper(camera.getWorldDirection(new THREE.Vector3()), camera.getWorldPosition(new THREE.Vector3()), 3, 0x000000 );
 
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xffffff);
-  scene.fog = new THREE.Fog(0xffffff, 0, 2000);
   //scene.fog = new THREE.FogExp2 (0xffffff, 0.007);
+  let itemHolderRepGeom = new THREE.BoxBufferGeometry(1, 1, 1);
+  let itemHolderRepMat = new THREE.MeshBasicMaterial({ color: "gray" });
+  rep = new THREE.Mesh(itemHolderRepGeom, itemHolderRepMat);
+  // rep.position.y = 20;
+  scene.add(rep);
 
   scene.add(floor);
 

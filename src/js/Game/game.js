@@ -1,6 +1,10 @@
 let clock = new THREE.Clock();
 let delta = 0;
 function loop() {
+  
+  if (window.innerWidth < 1280) {
+    return;
+  }
   delta = clock.getDelta();
   if (playerCollisionWithWallTop()) {
     yawObject.position.z = floor.position.z - floorHeight / 2 + wallDistOff;
@@ -63,7 +67,7 @@ function loop() {
   let slot7 = document.getElementById("slot7");
 
   slots.push(slot1, slot2, slot3, slot4, slot5, slot6, slot7);
-  if(!paused)
+  if (!paused)
     switch (selectedSlot.id) {
       case 1:
         slots.forEach((slot) => {
@@ -115,7 +119,7 @@ function loop() {
         slot7.classList.add("selected");
         // alert(1)
         break;
-  }
+    }
 
   bullets.forEach((bullet) => {
     // bullet.b.position.copy(yawObject.getWorldPosition(distance));
@@ -134,9 +138,233 @@ function loop() {
     document.getElementById("console").style.display = "none";
   }
 
-  if (isCloseTo(yawObject, { position: { x: 0, z: 0 } }, 100)) {
-    
-  }
-  
+  worldObjects.forEach((o) => {
+    if (cameraDistance(camera) == undefined)
+      return;
+    // console.log(o);
+    // console.log(o.object.material.color.r, o.r);
+    o.object.material.color.r = o.r;
+    o.object.material.color.g = o.g;
+    o.object.material.color.b = o.b;
+    if (!o.outlined && cameraDistance(camera) != undefined || cameraDistance(camera) != null) {
+      // o.material.alphaMap = "grey";
+      
+      
+      // if (!(cameraDistance(camera).object.name == "floor")) {
+      if (cameraDistance(camera).object.type != "Mesh") {
+        console.log("Player Not Looking at Mesh -> Looking at { " + cameraDistance(camera).object.type + " }");
+      }
+      // console.log(cameraDistance(camera).object.type);
+      let lines = [];
+      const material = new THREE.LineBasicMaterial({
+        color: 0x0000ff,
+      });
+      let outerLineOff = -0.10;
+
+      const points = [];
+      //top
+      let boxOutline = [
+        new THREE.Vector3(
+          o.object.position.x -
+            o.object.geometry.parameters.width / 2 -
+            outerLineOff,
+          o.object.position.y + o.object.geometry.parameters.height / 2 + outerLineOff,
+          o.object.position.z -
+            o.object.geometry.parameters.depth / 2 -
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x +
+            o.object.geometry.parameters.width / 2 +
+            outerLineOff,
+          o.object.position.y + o.object.geometry.parameters.height / 2 + outerLineOff,
+          o.object.position.z -
+            o.object.geometry.parameters.depth / 2 -
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x +
+            o.object.geometry.parameters.width / 2 +
+            outerLineOff,
+          o.object.position.y + o.object.geometry.parameters.height / 2 + outerLineOff,
+          o.object.position.z +
+            o.object.geometry.parameters.depth / 2 +
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x -
+            o.object.geometry.parameters.width / 2 -
+            outerLineOff,
+          o.object.position.y + o.object.geometry.parameters.height / 2 + outerLineOff,
+          o.object.position.z +
+            o.object.geometry.parameters.depth / 2 +
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x -
+            o.object.geometry.parameters.width / 2 -
+            outerLineOff,
+          o.object.position.y + o.object.geometry.parameters.height / 2 + outerLineOff,
+          o.object.position.z -
+            o.object.geometry.parameters.depth / 2 -
+            outerLineOff
+        ),
+        //bottom
+
+        new THREE.Vector3(
+          o.object.position.x -
+            o.object.geometry.parameters.width / 2 -
+            outerLineOff,
+          o.object.position.y - o.object.geometry.parameters.height / 2 - outerLineOff,
+          o.object.position.z -
+            o.object.geometry.parameters.depth / 2 -
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x +
+            o.object.geometry.parameters.width / 2 +
+            outerLineOff,
+          o.object.position.y - o.object.geometry.parameters.height / 2 - outerLineOff,
+          o.object.position.z -
+            o.object.geometry.parameters.depth / 2 -
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x +
+            o.object.geometry.parameters.width / 2 +
+            outerLineOff,
+          o.object.position.y - o.object.geometry.parameters.height / 2 - outerLineOff,
+          o.object.position.z +
+            o.object.geometry.parameters.depth / 2 +
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x -
+            o.object.geometry.parameters.width / 2 -
+            outerLineOff,
+          o.object.position.y - o.object.geometry.parameters.height / 2 - outerLineOff,
+          o.object.position.z +
+            o.object.geometry.parameters.depth / 2 +
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x -
+            o.object.geometry.parameters.width / 2 -
+            outerLineOff,
+          o.object.position.y - o.object.geometry.parameters.height / 2 - outerLineOff,
+          o.object.position.z +
+            o.object.geometry.parameters.depth / 2 +
+            outerLineOff
+        ),
+        // other vertical lines
+
+        new THREE.Vector3(
+          o.object.position.x -
+            o.object.geometry.parameters.width / 2 -
+            outerLineOff,
+          o.object.position.y + o.object.geometry.parameters.height / 2 + outerLineOff,
+          o.object.position.z +
+            o.object.geometry.parameters.depth / 2 +
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x +
+            o.object.geometry.parameters.width / 2 +
+            outerLineOff,
+          o.object.position.y + o.object.geometry.parameters.height / 2 + outerLineOff,
+          o.object.position.z +
+            o.object.geometry.parameters.depth / 2 +
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x +
+            o.object.geometry.parameters.width / 2 +
+            outerLineOff,
+          o.object.position.y - o.object.geometry.parameters.height / 2 - outerLineOff,
+          o.object.position.z +
+            o.object.geometry.parameters.depth / 2 +
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x +
+            o.object.geometry.parameters.width / 2 +
+            outerLineOff,
+          o.object.position.y - o.object.geometry.parameters.height / 2 - outerLineOff,
+          o.object.position.z -
+            o.object.geometry.parameters.depth / 2 -
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x +
+            o.object.geometry.parameters.width / 2 +
+            outerLineOff,
+          o.object.position.y + o.object.geometry.parameters.height / 2 + outerLineOff,
+          o.object.position.z -
+            o.object.geometry.parameters.depth / 2 -
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x -
+            o.object.geometry.parameters.width / 2 -
+            outerLineOff,
+          o.object.position.y + o.object.geometry.parameters.height / 2 + outerLineOff,
+          o.object.position.z -
+            o.object.geometry.parameters.depth / 2 -
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x -
+            o.object.geometry.parameters.width / 2 -
+            outerLineOff,
+          o.object.position.y - o.object.geometry.parameters.height / 2 - outerLineOff,
+          o.object.position.z -
+            o.object.geometry.parameters.depth / 2 -
+            outerLineOff
+        ),
+
+        new THREE.Vector3(
+          o.object.position.x -
+            o.object.geometry.parameters.width / 2 -
+            outerLineOff,
+          o.object.position.y - o.object.geometry.parameters.height / 2 - outerLineOff,
+          o.object.position.z +
+            o.object.geometry.parameters.depth / 2 +
+            outerLineOff
+        ),
+      ];
+
+      boxOutline.forEach(p => {
+        points.push(p);
+      })
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+      const line = new THREE.Line(geometry, material);
+      line.name = "outlineObjectLine" + o.id;
+      // scene.add(line);
+      // console.log(o.id, o.outlined);
+      // }
+    }
+    if (cameraDistance(camera).object == o.object && cameraDistance(camera) != undefined || cameraDistance(camera) != null) {
+      o.outlined = true;
+    } else {
+      scene.remove(scene.getObjectByName("outlineObjectLine" + o.id));
+      o.outlined = false;
+    }
+  });
+
   // console.log(cameraDistance(camera));
 }
