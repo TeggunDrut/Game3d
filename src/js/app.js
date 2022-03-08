@@ -1,3 +1,5 @@
+// import * as THREE from "./three/module.three.js";
+// import { EffectComposer } from "../jsm/postprocessing/EffectComposer.js";
 document.addEventListener("keydown", (e) => {
   keyState[e.key] = true;
   if (e.key == "`" || e.key == "~") {
@@ -383,7 +385,7 @@ if (havePointerLock) {
   instructions.innerHTML = "Your browser not suported PointerLock";
 }
 
-var camera, scene, renderer, controls, raycaster, arrow, world;
+var camera, scene, controls, raycaster, arrow, world;
 
 init();
 animate();
@@ -411,15 +413,10 @@ function init() {
 
   scene.add(floor);
 
-  renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.shadowMap.enabled = true;
-  document.body.appendChild(renderer.domElement);
-  renderer.outputEncoding = THREE.sRGBEncoding;
-
   window.addEventListener("resize", onWindowResize, false);
+
+  let ambientLight = new THREE.AmbientLight(0x000000, 100);
+  scene.add(ambientLight);
 
   var light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
   light.position.set(0, 100, 0.4);
@@ -427,17 +424,17 @@ function init() {
 
   var dirLight = new THREE.SpotLight(0xffffff, 0.5, 0.0, 180.0);
   dirLight.color.setHSL(0.1, 1, 0.95);
-  dirLight.position.set(0, 300, 100);
+  dirLight.position.set(100, 300, 100);
   dirLight.castShadow = true;
   dirLight.lookAt(new THREE.Vector3());
   scene.add(dirLight);
 
-  dirLight.shadow.mapSize.width = 4096;
+  dirLight.shadow.mapSize.width = 2096;
   dirLight.shadow.mapSize.height = 4096;
   dirLight.shadow.camera.far = 3000;
 
-  //var dirLightHeper = new THREE.SpotLightHelper( dirLight, 10 );
-  //scene.add( dirLightHeper );
+  // var dirLightHeper = new THREE.SpotLightHelper( dirLight, 10 );
+  // scene.add( dirLightHeper );
 
   controls = new THREE.FirstPersonControls(camera);
   scene.add(controls.getObject());
@@ -473,7 +470,10 @@ function init() {
   const gridHelper = new THREE.GridHelper(size, divisions, "blue", "red");
   scene.add(gridHelper);
 
-  let zerozeroMarker = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshBasicMaterial({ color: "red" }));
+  let zerozeroMarker = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 10, 1),
+    new THREE.MeshBasicMaterial({ color: "red" })
+  );
   zerozeroMarker.name = "zerozeroMarker";
 
   scene.add(zerozeroMarker);

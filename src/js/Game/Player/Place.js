@@ -39,19 +39,6 @@ function placeObject(obj) {
 
   //   console.log(box.position);
   // }
-  let cameraObject = cameraDistance(camera).object;
-  names.forEach((name) => {
-    if (cameraObject.name !== "floor") {
-      if (
-        numz ==
-        cameraObject.position.z +
-          cameraObject.scale.y
-      ) {
-      }
-      // alert(cameraObject.scale.x + " " + cameraObject.scale.y + " " + cameraObject.scale.z)
-      // alert(numz + " " + cameraObject.position.z + cameraObject.scale.z);
-    }
-  });
 
   let box = new THREE.Mesh(obj.goem, obj.mat);
   box.position.x = numx;
@@ -60,9 +47,83 @@ function placeObject(obj) {
   box.receiveShadow = true;
   box.castShadow = true;
   box.name = obj.name;
-  scene.add(box);
+  let id = Math.ceil(Math.random() * 1721272)
+  let cameraObject = cameraDistance(camera).object;
+  if (cameraObject.name !== "floor") {
+    if (
+      numy ==
+      cameraObject.position.y + cameraObject.geometry.parameters.height / 2
+    ) {
+      box.position.x = cameraObject.position.x;
+      box.position.y =
+        cameraObject.position.y + cameraObject.geometry.parameters.height;
+      box.position.z = cameraObject.position.z;
+      worldObjects.push({object: box, outlined: false, id: id});
+      scene.add(box);
+    }
+    if (
+      numy ==
+      cameraObject.position.y - cameraObject.geometry.parameters.height / 2
+    ) {
+      box.position.x = cameraObject.position.x;
+      box.position.y =
+        cameraObject.position.y - cameraObject.geometry.parameters.height;
+      box.position.z = cameraObject.position.z;
+      worldObjects.push({object: box, outlined: false, id: id});
+      scene.add(box);
+    }
+    if (
+      numx ==
+      cameraObject.position.x + cameraObject.geometry.parameters.width / 2
+    ) {
+      box.position.x =
+        cameraObject.position.x + cameraObject.geometry.parameters.width;
+      box.position.y = cameraObject.position.y;
+      box.position.z = cameraObject.position.z;
+      worldObjects.push({object: box, outlined: false, id: id});
+      scene.add(box);
+    }
+    if (
+      numx ==
+      cameraObject.position.x - cameraObject.geometry.parameters.width / 2
+    ) {
+      box.position.x =
+        cameraObject.position.x - cameraObject.geometry.parameters.width;
+      box.position.y = cameraObject.position.y;
+      box.position.z = cameraObject.position.z;
+      worldObjects.push({object: box, outlined: false, id: id});
+      scene.add(box);
+    }
+    if (
+      numz ==
+      cameraObject.position.z - cameraObject.geometry.parameters.depth / 2
+    ) {
+      box.position.x = cameraObject.position.x;
+      box.position.y = cameraObject.position.y;
+      box.position.z =
+        cameraObject.position.z - cameraObject.geometry.parameters.depth;
+      worldObjects.push({object: box, outlined: false, id: id});
+      scene.add(box);
+    }
+    if (
+      numz ==
+      cameraObject.position.z + cameraObject.geometry.parameters.depth / 2
+    ) {
+      box.position.x = cameraObject.position.x;
+      box.position.y = cameraObject.position.y;
+      box.position.z =
+        cameraObject.position.z + cameraObject.geometry.parameters.depth;
+      worldObjects.push({object: box, outlined: false, id: id});
+      scene.add(box);
+    }
+    // alert(cameraObject.scale.x + " " + cameraObject.scale.y + " " + cameraObject.scale.z)
+    // alert(numz + " " + cameraObject.position.z + cameraObject.scale.z);
+  } else {
+    worldObjects.push({object: box, outlined: false, id: id});
+    scene.add(box);
+  }
+
   // cube.position.x = numx;
   // cube.position.z = numz;
-  console.log("asd");
   // scene.add(cube);
 }

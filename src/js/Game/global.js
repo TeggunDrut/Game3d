@@ -9,11 +9,13 @@ let keyState = {
   Space: false,
   Shift: false,
   Control: false,
-}; 
+};
 
 let gameConsole = {
-  open: false
+  open: false,
 };
+
+let worldObjects = [];
 
 var moveForward = false;
 var moveBackward = false;
@@ -62,15 +64,14 @@ let indexCol = 0;
 
 // let newX = numx - floorWidth
 
-for (let i = -floorWidth / 2; i < floorWidth / 2; i += 45 / 4) {
-  indexRow += 1;
-  gridBoxes.push({ x: i });
-  for (let j = -floorWidth / 2; j < floorWidth / 2; j += 45 / 4) {
-    indexCol++;
-    gridBoxes.push({ x: i });
-    console.log(j);
-  }
-}
+// for (let i = -floorWidth / 2; i < floorWidth / 2; i += 45 / 4) {
+//   indexRow += 1;
+//   gridBoxes.push({ x: i });
+//   for (let j = -floorWidth / 2; j < floorWidth / 2; j += 45 / 4) {
+//     indexCol++;
+//     gridBoxes.push({ x: i });
+//   }
+// }
 console.log(indexRow, indexCol);
 let player = {
   x: 10,
@@ -113,6 +114,13 @@ let wallDistOff = 5;
 let onGround = false;
 let availableJump = true;
 // UI
+let renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+renderer.outputEncoding = THREE.sRGBEncoding;
 
 let UIState = null;
 
@@ -174,10 +182,10 @@ let inventorySlots = [
       shape: "box",
       name: `conveyor, -${Math.floor(Math.random() * 100)}`,
       goem: new THREE.BoxBufferGeometry(10, 10, 10),
-      mat: new THREE.MeshBasicMaterial({ color: "blue" }),
+      mat: new THREE.MeshBasicMaterial({ color: "yellow" }),
       scaleX: 10,
       scaleY: 10,
-      scaleZ: 10
+      scaleZ: 10,
     },
   },
   { id: 2, selected: {} },
@@ -256,15 +264,14 @@ let shootLoop;
 let firstShot = true;
 document.addEventListener("mousedown", (e) => {
   if (!paused) {
-    player.rightClick();
     mouseDown = true;
     if (e.button == 0) {
+      player.leftClick();
     }
     if (e.button == 2) {
       player.rightClick();
-    }  
+    }
   }
-  
 });
 document.addEventListener("mouseup", (e) => {
   mouseDown = false;
