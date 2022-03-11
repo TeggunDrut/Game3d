@@ -48,6 +48,7 @@ function cameraDistance(camera) {
     //     console.log('asdadasd');
     //   }
     // });
+    // console.log(intersects[0].object.type);
     return intersects[0];
   }
 }

@@ -39,15 +39,26 @@ function placeObject(obj) {
 
   //   console.log(box.position);
   // }
+  let geom = new THREE.BoxBufferGeometry(obj.scaleX, obj.scaleY, obj.scaleZ);
+  console.log(obj);
+  let mat = new THREE.MeshBasicMaterial({color: `rgb(${obj.red}, ${obj.green}, ${obj.blue})`});
 
-  let box = new THREE.Mesh(obj.goem, obj.mat);
+  let box = new THREE.Mesh(geom, mat);
   box.position.x = numx;
   box.position.y = numy + obj.scaleY / 2;
   box.position.z = numz;
   box.receiveShadow = true;
   box.castShadow = true;
-  box.name = obj.name;
-  let id = Math.ceil(Math.random() * 1721272)
+  let id = Math.ceil(Math.random() * 1721272);
+  worldObjects.forEach((o) => {
+    console.log(o.id, o);
+    if (o.id == id) {
+      console.log("asd");
+      id = Math.ceil(Math.random() * 1721272);
+    }
+  });
+  box.name = obj.blockType + "," + id;
+
   let cameraObject = cameraDistance(camera).object;
   if (cameraObject.name !== "floor") {
     if (
@@ -58,7 +69,14 @@ function placeObject(obj) {
       box.position.y =
         cameraObject.position.y + cameraObject.geometry.parameters.height;
       box.position.z = cameraObject.position.z;
-      worldObjects.push({object: box, outlined: false, id: id});
+      worldObjects.push({
+        object: box,
+        outlined: false,
+        id: id,
+        r: box.material.color.r,
+        g: box.material.color.g,
+        b: box.material.color.b,
+      });
       scene.add(box);
     }
     if (
@@ -69,7 +87,14 @@ function placeObject(obj) {
       box.position.y =
         cameraObject.position.y - cameraObject.geometry.parameters.height;
       box.position.z = cameraObject.position.z;
-      worldObjects.push({object: box, outlined: false, id: id});
+      worldObjects.push({
+        object: box,
+        outlined: false,
+        id: id,
+        r: box.material.color.r,
+        g: box.material.color.g,
+        b: box.material.color.b,
+      });
       scene.add(box);
     }
     if (
@@ -80,7 +105,14 @@ function placeObject(obj) {
         cameraObject.position.x + cameraObject.geometry.parameters.width;
       box.position.y = cameraObject.position.y;
       box.position.z = cameraObject.position.z;
-      worldObjects.push({object: box, outlined: false, id: id});
+      worldObjects.push({
+        object: box,
+        outlined: false,
+        id: id,
+        r: box.material.color.r,
+        g: box.material.color.g,
+        b: box.material.color.b,
+      });
       scene.add(box);
     }
     if (
@@ -91,7 +123,14 @@ function placeObject(obj) {
         cameraObject.position.x - cameraObject.geometry.parameters.width;
       box.position.y = cameraObject.position.y;
       box.position.z = cameraObject.position.z;
-      worldObjects.push({object: box, outlined: false, id: id});
+      worldObjects.push({
+        object: box,
+        outlined: false,
+        id: id,
+        r: box.material.color.r,
+        g: box.material.color.g,
+        b: box.material.color.b,
+      });
       scene.add(box);
     }
     if (
@@ -102,7 +141,14 @@ function placeObject(obj) {
       box.position.y = cameraObject.position.y;
       box.position.z =
         cameraObject.position.z - cameraObject.geometry.parameters.depth;
-      worldObjects.push({object: box, outlined: false, id: id});
+      worldObjects.push({
+        object: box,
+        outlined: false,
+        id: id,
+        r: box.material.color.r,
+        g: box.material.color.g,
+        b: box.material.color.b,
+      });
       scene.add(box);
     }
     if (
@@ -113,13 +159,27 @@ function placeObject(obj) {
       box.position.y = cameraObject.position.y;
       box.position.z =
         cameraObject.position.z + cameraObject.geometry.parameters.depth;
-      worldObjects.push({object: box, outlined: false, id: id});
+      worldObjects.push({
+        object: box,
+        outlined: false,
+        id: id,
+        r: box.material.color.r,
+        g: box.material.color.g,
+        b: box.material.color.b,
+      });
       scene.add(box);
     }
     // alert(cameraObject.scale.x + " " + cameraObject.scale.y + " " + cameraObject.scale.z)
     // alert(numz + " " + cameraObject.position.z + cameraObject.scale.z);
   } else {
-    worldObjects.push({object: box, outlined: false, id: id});
+    worldObjects.push({
+      object: box,
+      outlined: false,
+      id: id,
+      r: box.material.color.r,
+      g: box.material.color.g,
+      b: box.material.color.b,
+    });
     scene.add(box);
   }
 
