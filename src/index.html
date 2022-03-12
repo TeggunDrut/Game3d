@@ -533,7 +533,32 @@
       function cameraDistance(camera) {
         raycaster.setFromCamera(pointer, camera);
         const intersects = raycaster.intersectObjects(scene.children);
-
+        if (intersects[0] == undefined) {
+          return {
+            distance: 0,
+            point: {
+              x: 0,
+              y: 0,
+              z: 0,
+            },
+            object: {
+              type: "null",
+              name: "null",
+              position: {
+                x: 0,
+                y: 0,
+                z: 0,
+              },
+              geometry: {
+                parameters: {
+                  width: 0,
+                  height: 0,
+                  depth: 0,
+                },
+              },
+            },
+          };
+        }
         for (let i = 0; i < intersects.length; i++) {
           let names = intersects[0].object.name.split(",");
           // names.forEach((name) => {
@@ -566,6 +591,7 @@
         let numx = cameraDistance(camera).point.x;
         let numy = cameraDistance(camera).point.y;
         let numz = cameraDistance(camera).point.z;
+        // console.log(cameraDistance(camera).object.position.z, cameraDistance(camera).point.z);
 
         let newX = numx + floorWidth / 2;
         let newZ = numz + floorHeight / 2;
@@ -574,6 +600,48 @@
         let finalz = Math.ceil(newZ / (45 / 4));
         // console.log(finalx, finalz);
         let size = 1;
+
+        let obj1 = cameraDistance(camera).object;
+        let point = cameraDistance(camera).point;
+
+        let oX = obj1.position.x;
+        let oY = obj1.position.y;
+        let oZ = obj1.position.z;
+
+        let px = point.x - obj1.position.x;
+        let py = point.y - obj1.position.y;
+        let pz = point.z - obj1.position.z;
+
+        console.log(obj1);
+
+        // if(pz > oZ) {
+        //   console.log('front');
+        // }
+        // if(pz < oZ) {
+        //   console.log('back');
+        // }
+
+        // if(px > oX) {
+        //   console.log('right');
+        // }
+        // if(px < oX) {
+        //   console.log('left');
+        // }
+
+
+        // if (
+        //   yawObject.position.z >
+        //     cameraDistance(camera).object.position.z -
+        //       cameraDistance(camera).object.geometry.parameters.depth / 2 &&
+        //   yawObject.position.z <
+        //     cameraDistance(camera).object.position.z +
+        //       cameraDistance(camera).object.geometry.parameters.depth / 2 &&
+        //   yawObject.position.x >
+        //     cameraDistance(camera).object.position.x +
+        //       cameraDistance(camera).object.geometry.parameters.width / 2
+        // ) {
+        //   console.log("asd");
+        // }
         // let geom = new THREE.BoxBufferGeometry(size, size, size);
         // let mat = new THREE.MeshBasicMaterial({ color: "yellow" });
         // let cube = new THREE.Mesh(geom, mat);
@@ -611,6 +679,8 @@
         box.receiveShadow = true;
         box.castShadow = true;
 
+
+
         let id = Math.ceil(Math.random() * 1721272);
 
         worldObjects.forEach((o) => {
@@ -639,8 +709,14 @@
             worldObject.blockLogic = c;
             break;
         }
+
         let cameraObject = cameraDistance(camera).object;
         if (cameraObject.name != "floor") {
+          console.log(
+            numz,
+            cameraDistance(camera).point,
+            cameraObject.position.z
+          );
           if (
             numy ==
             cameraObject.position.y +
@@ -652,8 +728,7 @@
             box.position.z = cameraObject.position.z;
             worldObjects.push(worldObject);
             scene.add(box);
-          }
-          if (
+          } else if (
             numy ==
             cameraObject.position.y -
               cameraObject.geometry.parameters.height / 2
@@ -664,8 +739,7 @@
             box.position.z = cameraObject.position.z;
             worldObjects.push(worldObject);
             scene.add(box);
-          }
-          if (
+          } else if (
             numx ==
             cameraObject.position.x + cameraObject.geometry.parameters.width / 2
           ) {
@@ -675,8 +749,7 @@
             box.position.z = cameraObject.position.z;
             worldObjects.push(worldObject);
             scene.add(box);
-          }
-          if (
+          } else if (
             numx ==
             cameraObject.position.x - cameraObject.geometry.parameters.width / 2
           ) {
@@ -686,8 +759,7 @@
             box.position.z = cameraObject.position.z;
             worldObjects.push(worldObject);
             scene.add(box);
-          }
-          if (
+          } else if (
             numz ==
             cameraObject.position.z - cameraObject.geometry.parameters.depth / 2
           ) {
@@ -697,8 +769,7 @@
               cameraObject.position.z - cameraObject.geometry.parameters.depth;
             worldObjects.push(worldObject);
             scene.add(box);
-          }
-          if (
+          } else if (
             numz ==
             cameraObject.position.z + cameraObject.geometry.parameters.depth / 2
           ) {
@@ -711,7 +782,6 @@
           }
           // alert(cameraObject.scale.x + " " + cameraObject.scale.y + " " + cameraObject.scale.z)
           // alert(numz + " " + cameraObject.position.z + cameraObject.scale.z);
-          console.log(cameraObject.name);
         } else {
           console.log(cameraObject.name);
           worldObjects.push(worldObject);
@@ -990,7 +1060,6 @@
         let z = yawObject.position.z;
 
         if (x > floorX + floorWidth - wallDistOff) {
-          console.log("asd");
           return true;
         } else {
           return false;
@@ -1174,8 +1243,6 @@
         }
 
         worldObjects.forEach((o) => {
-          // console.log(o);
-          // console.log(o.object.material.color.r, o.r);
           o.object.material.color.r = o.r;
           o.object.material.color.g = o.g;
           o.object.material.color.b = o.b;
@@ -1185,78 +1252,108 @@
           o.object.position.y *= gravity;
           o.object.position.z += o.velZ;
 
-          scene.children.forEach((child) => {
+          if (
+            o.object.position.y - o.object.geometry.parameters.height / 2 <
+            0
+          ) {
+            o.object.position.y = 0 + o.object.geometry.parameters.height / 2;
+          }
+
+          worldObjects.forEach((o2) => {
+            if (o == o2) return;
+            let obj1 = o.object;
+            let obj2 = o2.object;
+
             if (
-              child.type != "AmbientLight" &&
-              child.type != "HemisphereLight" &&
-              child.type != "SpotLight" &&
-              child.type != "Object3D" &&
-              child.type != "GridHelper" &&
-              child.type != "Gridhelper" &&
-              child.type != "Group"
+              inBetweenFunc(obj1, obj2) &&
+              obj1.position.y - obj1.geometry.parameters.height / 2 <
+                obj2.position.y + obj2.geometry.parameters.height / 2
             ) {
-              let x = o.object.position.x;
-              let y = o.object.position.y;
-              let z = o.object.position.z;
-              let sx = o.object.geometry.parameters.width;
-              let sy = o.object.geometry.parameters.height;
-              let sz = o.object.geometry.parameters.depth;
-              let wx = child.position.x;
-              let wy = child.position.y;
-              let wz = child.position.z;
-              let wsx = child.geometry.parameters.width;
-              let wsy = child.geometry.parameters.height;
-              let wsz = child.geometry.parameters.depth;
-
-              if (child.name.split(",")[0] == "conveyor" && child != o.object) {
-                if (
-                  o.object.position.y -
-                    o.object.geometry.parameters.height / 2 <
-                  child.position.y
-                ) {
-                  o.object.position.y =
-                    child.position.y + o.object.geometry.parameters.height / 2;
-                }
-              }
-
-              if (child.name == "floor") {
-                // if (
-                //   x < wx + wsx / 2 &&
-                //   x > wx - wsx / 2 &&
-                //   z < wz + wsz / 2 &&
-                //   z > wz - wsz / 2
-                // ) {
-                if (
-                  o.object.position.y -
-                    o.object.geometry.parameters.height / 2 <
-                  child.position.y
-                ) {
-                  o.object.position.y =
-                    child.position.y + o.object.geometry.parameters.height / 2;
-                }
-              }
-              // }
+              o2.velY = 0;
+              obj2.position.y =
+                obj1.position.y + obj2.geometry.parameters.height;
             }
-            // if (
-            //   child.position &&
-            //   child.geometry &&
-            //   child.paramaters &&
-            //   o.object !== child
-            // ) {
-
-            //   // console.log(x, y, z, sx, sy, sz, wx, wy, wz, wsx, wsy, wsz);
-
-            //   // if (
-            //   //   o.object.position.y - o.object.geometry.parameters.height / 2 <
-            //   //   child.position.y + child.geometry.parameters.height
-            //   // ) {
-            //   //   // alert(child.geometry.parameters.height)
-            //   //   alert(child.name);
-            //   //   o.object.position.y =
-            //   //     child.position.y + o.object.geometry.parameters.height;
-            //   // }
-            // }
           });
+          // console.log(o.object.position.y);
+          // scene.children.forEach((child) => {
+          //   if (
+          //     child.type != "AmbientLight" &&
+          //     child.type != "HemisphereLight" &&
+          //     child.type != "SpotLight" &&
+          //     child.type != "Object3D" &&
+          //     child.type != "GridHelper" &&
+          //     child.type != "Gridhelper" &&
+          //     child.type != "Group"
+          //   ) {
+          //     let x = o.object.position.x;
+          //     let y = o.object.position.y;
+          //     let z = o.object.position.z;
+          //     let sx = o.object.geometry.parameters.width;
+          //     let sy = o.object.geometry.parameters.height;
+          //     let sz = o.object.geometry.parameters.depth;
+          //     let wx = child.position.x;
+          //     let wy = child.position.y;
+          //     let wz = child.position.z;
+          //     let wsx = child.geometry.parameters.width;
+          //     let wsy = child.geometry.parameters.height;
+          //     let wsz = child.geometry.parameters.depth;
+
+          //     if (
+          //       child.name.split(",")[0] == "conveyor" &&
+          //       child.uuid != o.object.uuid
+          //     ) {
+          //       if (
+          //         o.object.position.y -
+          //           o.object.geometry.parameters.height / 2 <
+          //           child.position.y &&
+          //           z < wz + wsz / 2 &&
+          //           z > wz - wsz / 2 &&
+          //         x < wx + wsx / 2 &&
+          //         x > wx - wsx / 2
+          //       ) {
+          //         o.object.position.y =
+          //           child.position.y + o.object.geometry.parameters.height / 2;
+          //       }
+          //     }
+
+          //     if (child.name == "floor") {
+          //       // if (
+          //       //   x < wx + wsx / 2 &&
+          //       //   x > wx - wsx / 2 &&
+          //       //   z < wz + wsz / 2 &&
+          //       //   z > wz - wsz / 2
+          //       // ) {
+          //       if (
+          //         o.object.position.y -
+          //           o.object.geometry.parameters.height / 2 <
+          //         child.position.y
+          //       ) {
+          //         o.object.position.y =
+          //           child.position.y + o.object.geometry.parameters.height / 2;
+          //       }
+          //     }
+          //     // }
+          //   }
+          //   // if (
+          //   //   child.position &&
+          //   //   child.geometry &&
+          //   //   child.paramaters &&
+          //   //   o.object !== child
+          //   // ) {
+
+          //   //   // console.log(x, y, z, sx, sy, sz, wx, wy, wz, wsx, wsy, wsz);
+
+          //   //   // if (
+          //   //   //   o.object.position.y - o.object.geometry.parameters.height / 2 <
+          //   //   //   child.position.y + child.geometry.parameters.height
+          //   //   // ) {
+          //   //   //   // alert(child.geometry.parameters.height)
+          //   //   //   alert(child.name);
+          //   //   //   o.object.position.y =
+          //   //   //     child.position.y + o.object.geometry.parameters.height;
+          //   //   // }
+          //   // }
+          // });
 
           if (
             (!o.outlined && cameraDistance(camera) != undefined) ||
@@ -1266,11 +1363,11 @@
 
             // if (!(cameraDistance(camera).object.name == "floor")) {
             if (cameraDistance(camera).object.type != "Mesh") {
-              console.log(
-                "Player Not Looking at Mesh -> Looking at { " +
-                  cameraDistance(camera).object.type +
-                  " }"
-              );
+              // console.log(
+              //   "Player Not Looking at Mesh -> Looking at { " +
+              //     cameraDistance(camera).object.type +
+              //     " }"
+              // );
             }
             // console.log(cameraDistance(camera).object.type);
             let lines = [];
@@ -2129,7 +2226,7 @@
         const divisions = 45;
 
         const gridHelper = new THREE.GridHelper(size, divisions, "blue", "red");
-        scene.add(gridHelper);
+        // scene.add(gridHelper);
 
         let zerozeroMarker = new THREE.Mesh(
           new THREE.BoxGeometry(1, 10, 1),
@@ -2196,7 +2293,7 @@
           // }
         }
         // console.log(`player.x`, player.x);
-        // playerMesh.position.x = player.x;
+        // playerMesh.posicameration.x = player.x;
         loop();
 
         renderer.render(scene, camera);

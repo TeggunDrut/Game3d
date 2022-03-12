@@ -426,3 +426,15 @@ var prevTime = performance.now();
 var time = performance.now();
 var delta = (time - prevTime) / 1000;
 let gravity = 6.8 * 100.0 * delta + 1;
+function inBetweenFunc(obj1, obj2) {
+  if (
+    obj1.position.x > obj2.position.x - obj2.geometry.parameters.width / 2 &&
+    obj1.position.x < obj2.position.x + obj2.geometry.parameters.width / 2 &&
+    obj1.position.z > obj2.position.z - obj2.geometry.parameters.depth / 2 &&
+    obj1.position.z < obj2.position.z + obj2.geometry.parameters.depth / 2
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+}
