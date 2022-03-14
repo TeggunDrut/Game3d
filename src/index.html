@@ -226,7 +226,8 @@
     <script src="js/Game/Objects/Conveyor.js"></script>
     <script type="module">
       // import * as THREE from "three";
-      // import { FBXLoader } from "./jsm/loaders/FBXLoader.js";
+      import { FBXLoader } from "./jsm/loaders/FBXLoader.js";
+      import { GLTFLoader } from "./jsm/loaders/GLTFLoader.js";
       // Globals
 
       var velocity = new THREE.Vector3();
@@ -303,7 +304,7 @@
       // ----- FBX ------
       // let fbxLoader = new FBXLoader();
       // fbxLoader.load(
-      //   "./models/.fbx",
+      //   "./models",
       //   (object) => {
       //     // object.traverse(function (child) {
       //     //     if ((child as THREE.Mesh).isMesh) {
@@ -314,12 +315,13 @@
       //     //     }
       //     // })
       //     object.scale.set(0.1, 0.1, 0.1);
+      //     console.log(object);
+      //     // object.material.metalness = 0;
       //     // object.position.x = 10;
       //     object.castShadow = true;
       //     object.receiveShadow = true;
 
       //     object.position.y = 10;
-      //     console.log(scene);
       //     scene.add(object);
       //   },
       //   (xhr) => {
@@ -329,6 +331,60 @@
       //     console.log(error);
       //   }
       // );
+      let o = false;
+
+      let gltf = new GLTFLoader();
+      function getModelBox(modelName) {
+        // let obj = {
+        //   left: 0,
+        //   right: 0,
+        //   front: 0,
+        //   back: 0,
+        //   top: 0,
+        //   bottom: 0,
+        // };
+        let obj = {
+          x: 0,
+          y: 0,
+          z: 0,
+        };
+        gltf.load("./models/box.gltf", (result) => {
+          let maxX = 0;
+          let maxY = 0;
+          let maxZ = 0;
+
+          result.scene.scale.set(0.5, 0.5, 0.5);
+
+          result.scene.children.forEach((o) => {
+            if (o.position.x > maxX) {
+              maxX = o.position.x;
+            }
+            if (o.position.y > maxY) {
+              maxY = o.position.y;
+            }
+            if (o.position.z > maxZ) {
+              maxZ = o.position.z;
+            }
+          });
+          obj.x = maxX;
+          obj.y = maxY;
+          obj.z = maxZ;
+          console.log(obj);
+          return obj;
+        });
+      }
+
+      function loadGLTF(name, x, y, z, scaleX, scaleY, scaleZ) {
+        gltf.load(name, (result) => {
+          result.scene.scale.set(0.5, 0.5, 0.5);
+          result.scene.position.set(x, y + scaleY / 2, z);
+          scene.add(result.scene);
+          worldObjects.push(result.scene);
+        });
+      }
+      loadGLTF("./models/box.gltf", 10, 20, 10, 1, 1, 1);
+      loadGLTF("./models/box.gltf", 20, 20, 10, 1, 1, 1);
+      // ---- gltf ----
 
       let renderer = new THREE.WebGLRenderer({
         canvas: canvas,
@@ -530,9 +586,37 @@
       }
       window.addEventListener("mousemove", onPointerMove);
 
+      function cameraDistanceModel(camera, main) {
+        raycaster.setFromCamera(pointer, camera);
+        let list = [];
+        let intersects = [];
+        scene.children.forEach((c) => {
+          if (c.type == "Group" && c.name == "Scene") {
+            let intersects = raycaster.intersectObjects(c.children);
+            intersects.forEach((i) => {
+              if (i.object.name == "Cube" && main) {
+                list = [];
+                list.push(i);
+                return list;
+              } else {
+                list.push(i);
+              }
+            });
+          }
+        });
+        return { intersects, list };
+      }
+
       function cameraDistance(camera) {
         raycaster.setFromCamera(pointer, camera);
         const intersects = raycaster.intersectObjects(scene.children);
+
+        // scene.children.forEach((c) => {
+        //   if (c.type == "Group" && c.name == "Scene") {
+        //     console.log(c);
+        //   }
+        // });
+
         if (intersects[0] == undefined) {
           return {
             distance: 0,
@@ -585,9 +669,224 @@
           return true;
         } else return false;
       }
-      function placeObject(obj) {
-        let names = cameraDistance(camera).object.name.split(",");
+      function placeModel(modelDir, scaleX, scaleY, scaleZ) {
+        // console.log("hello",);
+        if (cameraDistanceModel(camera, false).list.length > 0) {
+          let geo = new THREE.BoxBufferGeometry(1, 1, 1);
+          let mat = new THREE.MeshBasicMaterial({ color: "green" });
+          let cube = new THREE.Mesh(geo, mat);
+          cube.position.copy(cameraDistanceModel(camera, false).list[0].point);
+          scene.add(cube);
+          console.log(cameraDistanceModel(camera, false).list[0].point);
+        }
+        if (cameraDistanceModel(camera, true).list.length > 0) {
+          let numx = cameraDistanceModel(camera, false).list[0].point.x;
+          let numy = cameraDistanceModel(camera, false).list[0].point.y;
+          let numz = cameraDistanceModel(camera, false).list[0].point.z;
+          let sectObj = cameraDistanceModel(camera, true).list[0].object;
+          let leastDist = 100;
+          let leastDistObj = null;
+          cameraDistanceModel(camera, false).list.forEach((d) => {
+            if (d.distance < leastDist) {
+              leastDist = d.distance;
+              leastDistObj = d.object;
+            }
+          });
 
+          // console.log(
+          //   cameraDistanceModel(camera, true).list[0].object.name,
+          //   cameraDistanceModel(camera, true).list[1].object.name
+          // );
+          if (leastDistObj.name == "top") {
+            loadGLTF(
+              modelDir,
+              sectObj.parent.position.x,
+              sectObj.parent.position.y +
+                sectObj.position.y / 2 -
+                sectObj.scale.y,
+              sectObj.parent.position.z,
+              scaleX,
+              scaleY,
+              scaleZ
+            );
+          } else if (leastDistObj.name == "bottom") {
+            // console.log("asd", sectObj);
+            loadGLTF(
+              modelDir,
+              sectObj.parent.position.x,
+              Math.round(
+                sectObj.parent.position.y -
+                  (sectObj.position.y / 2 - sectObj.position.y * 2)
+              ),
+              sectObj.parent.position.z,
+              scaleX,
+              scaleY,
+              scaleZ
+            );
+          }
+          // if(cameraDistanceModel(camera, false).list[0].name == "top" && cameraDistanceModel(camera, false).list[1].name == "left" || sectObj.name == "left" || sectObj.name.search("left") >= 0) {
+          if (leastDistObj.name == "left" || leastDistObj.name.search("left") >= 0) {
+            loadGLTF(
+              modelDir,
+              sectObj.parent.position.x - sectObj.scale.x,
+              sectObj.position.y,
+              sectObj.parent.position.z,
+              scaleX,
+              scaleY,
+              scaleZ
+            );
+            console.log(sectObj.parent, sectObj.position);
+          }
+          // console.log(cameraDistanceModel(camera, false).list[0].object);
+
+          // if (
+          //   numy ==
+          //   Math.round(
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position.y
+          //   )
+          // ) {
+          //   console.log(cameraDistanceModel(camera, false).list);
+          // loadGLTF(
+          //   modelDir,
+          //   cameraDistanceModel(camera, false).list[0].object.parent.position
+          //     .x,
+          //   cameraDistanceModel(camera, false).list[0].object.parent.position.y,
+          //   cameraDistanceModel(camera, false).list[0].object.parent.position
+          //     .z,
+          //   scaleX,
+          //   scaleY,
+          //   scaleZ
+          // );
+          //   console.log(1);
+          //   return;
+          // } else if (
+          //   numy ==
+          //   Math.round(
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position.y
+          //   ) -
+          //     cameraDistanceModel(camera, false).list[0].object.scale.y / 2
+          // ) {
+          //   loadGLTF(
+          //     modelDir,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position
+          //       .x,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position.y -
+          //       cameraDistanceModel(camera, false).list[0].object.scale.y,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position
+          //       .z,
+          //     scaleX,
+          //     scaleY,
+          //     scaleZ
+          //   );
+          //   console.log(1);
+          //   return;
+          // } else if (
+          //   numx ==
+          //   Math.round(
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position.x
+          //   )
+          // ) {
+          //   loadGLTF(
+          //     modelDir,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position.x,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position.y,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position
+          //       .z,
+          //     scaleX,
+          //     scaleY,
+          //     scaleZ
+          //   );
+          //   console.log(1);
+          //   return;
+          // } else if (
+          //   numx ==
+          //   Math.round(
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position.x
+          //   )
+          // ) {
+          //   loadGLTF(
+          //     modelDir,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position.x -
+          //       cameraDistanceModel(camera, false).list[0].object.scale.x,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position
+          //       .y,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position
+          //       .z,
+          //     scaleX,
+          //     scaleY,
+          //     scaleZ
+          //   );
+          //   console.log(1);
+          //   return;
+          // } else if (
+          //   numz ==
+          //   Math.round(
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position.z
+          //   )
+          // ) {
+          //   loadGLTF(
+          //     modelDir,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position
+          //       .x,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position
+          //       .y,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position.z -
+          //       cameraDistanceModel(camera, false).list[0].object.scale.z,
+          //     scaleX,
+          //     scaleY,
+          //     scaleZ
+          //   );
+          //   console.log(1);
+          //   return;
+          // } else if (
+          //   numz ==
+          //   Math.round(
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position.z
+          //   )
+          // ) {
+          //   loadGLTF(
+          //     modelDir,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position
+          //       .x,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position
+          //       .y,
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position.z +
+          //       cameraDistanceModel(camera, false).list[0].object.scale.z,
+          //     scaleX,
+          //     scaleY,
+          //     scaleZ
+          //   );
+          // }
+          // console.log(
+          //   "end",
+          //   cameraDistanceModel(camera, false).list[0],
+          //   numx,
+          //   Math.round(
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position.x
+          //   ),
+          //   cameraDistanceModel(camera, false).list[0].object.parent.position.x,
+          //   Math.round(
+          //     cameraDistanceModel(camera, false).list[0].object.parent.position
+          //       .x
+          //   )
+          // );
+          return;
+        }
+        if (cameraDistance(camera).object.name == "floor") {
+          loadGLTF(
+            modelDir,
+            cameraDistance(camera).point.x,
+            cameraDistance(camera).point.y,
+            cameraDistance(camera).point.z,
+            scaleX,
+            scaleY,
+            scaleZ
+          );
+          console.log("asdsad");
+          o = true;
+        }
+      }
+      function placeObject(obj) {
         let numx = cameraDistance(camera).point.x;
         let numy = cameraDistance(camera).point.y;
         let numz = cameraDistance(camera).point.z;
@@ -598,195 +897,298 @@
 
         let finalx = Math.ceil(newX / (45 / 4));
         let finalz = Math.ceil(newZ / (45 / 4));
-        // console.log(finalx, finalz);
-        let size = 1;
-
-        let obj1 = cameraDistance(camera).object;
-        let point = cameraDistance(camera).point;
-
-        let oX = obj1.position.x;
-        let oY = obj1.position.y;
-        let oZ = obj1.position.z;
-
-        let px = point.x - obj1.position.x;
-        let py = point.y - obj1.position.y;
-        let pz = point.z - obj1.position.z;
-
-        console.log(obj1);
-
-        // if(pz > oZ) {
-        //   console.log('front');
-        // }
-        // if(pz < oZ) {
-        //   console.log('back');
-        // }
-
-        // if(px > oX) {
-        //   console.log('right');
-        // }
-        // if(px < oX) {
-        //   console.log('left');
-        // }
-
-
-        // if (
-        //   yawObject.position.z >
-        //     cameraDistance(camera).object.position.z -
-        //       cameraDistance(camera).object.geometry.parameters.depth / 2 &&
-        //   yawObject.position.z <
-        //     cameraDistance(camera).object.position.z +
-        //       cameraDistance(camera).object.geometry.parameters.depth / 2 &&
-        //   yawObject.position.x >
-        //     cameraDistance(camera).object.position.x +
-        //       cameraDistance(camera).object.geometry.parameters.width / 2
-        // ) {
-        //   console.log("asd");
-        // }
-        // let geom = new THREE.BoxBufferGeometry(size, size, size);
-        // let mat = new THREE.MeshBasicMaterial({ color: "yellow" });
-        // let cube = new THREE.Mesh(geom, mat);
-
-        // kinda working
-        // cube.position.x = Math.ceil(-floorWidth / 2 + (finalx * (45 / 4)) + (size / 4));
-        // cube.position.z = Math.ceil(-floorHeight/2 + (finalz * (45/4)) + (size / 4));
-
-        // beofre one above ^
-        // cube.position.z = -floorHeight/2 4a4+ (finalz * (45/4));
-        // cube.position.x = (-floorWidth / 2 ) + (finalx * (45 / 4));
-
-        // idk
-        // cube.position.z = (-floorHeight / 2 ) + (finalz * (45 / 4));;
-
-        // if (obj.shape == "box") {
-        //   console.log(obj);
-
-        //   console.log(box.position);
-        // }
-        let geom = new THREE.BoxBufferGeometry(
-          obj.scaleX,
-          obj.scaleY,
-          obj.scaleZ
-        );
-
-        let mat = new THREE.MeshBasicMaterial({
-          color: `rgb(${obj.red}, ${obj.green}, ${obj.blue})`,
-        });
-
-        let box = new THREE.Mesh(geom, mat);
-        box.position.x = numx;
-        box.position.y = numy + obj.scaleY / 2;
-        box.position.z = numz;
-        box.receiveShadow = true;
-        box.castShadow = true;
-
-
-
-        let id = Math.ceil(Math.random() * 1721272);
-
-        worldObjects.forEach((o) => {
-          if (o.id == id) {
-            id = Math.ceil(Math.random() * 1721272);
-          }
-        });
-        box.name = obj.blockType + "," + id;
-
-        let worldObject = {
-          object: box,
-          outlined: false,
-          id: id,
-          r: box.material.color.r,
-          g: box.material.color.g,
-          b: box.material.color.b,
-          blockLogic: null,
-          type: "block",
-          velX: 0,
-          velY: 0,
-          velZ: 0,
-        };
-        switch (selectedSlot.selected.blockType) {
-          case "conveyor":
-            let c = new Conveyor();
-            worldObject.blockLogic = c;
-            break;
-        }
-
         let cameraObject = cameraDistance(camera).object;
-        if (cameraObject.name != "floor") {
-          console.log(
-            numz,
-            cameraDistance(camera).point,
-            cameraObject.position.z
-          );
-          if (
-            numy ==
-            cameraObject.position.y +
-              cameraObject.geometry.parameters.height / 2
-          ) {
-            box.position.x = cameraObject.position.x;
-            box.position.y =
-              cameraObject.position.y + cameraObject.geometry.parameters.height;
-            box.position.z = cameraObject.position.z;
-            worldObjects.push(worldObject);
-            scene.add(box);
-          } else if (
-            numy ==
-            cameraObject.position.y -
-              cameraObject.geometry.parameters.height / 2
-          ) {
-            box.position.x = cameraObject.position.x;
-            box.position.y =
-              cameraObject.position.y - cameraObject.geometry.parameters.height;
-            box.position.z = cameraObject.position.z;
-            worldObjects.push(worldObject);
-            scene.add(box);
-          } else if (
-            numx ==
-            cameraObject.position.x + cameraObject.geometry.parameters.width / 2
-          ) {
-            box.position.x =
-              cameraObject.position.x + cameraObject.geometry.parameters.width;
-            box.position.y = cameraObject.position.y;
-            box.position.z = cameraObject.position.z;
-            worldObjects.push(worldObject);
-            scene.add(box);
-          } else if (
-            numx ==
-            cameraObject.position.x - cameraObject.geometry.parameters.width / 2
-          ) {
-            box.position.x =
-              cameraObject.position.x - cameraObject.geometry.parameters.width;
-            box.position.y = cameraObject.position.y;
-            box.position.z = cameraObject.position.z;
-            worldObjects.push(worldObject);
-            scene.add(box);
-          } else if (
-            numz ==
-            cameraObject.position.z - cameraObject.geometry.parameters.depth / 2
-          ) {
-            box.position.x = cameraObject.position.x;
-            box.position.y = cameraObject.position.y;
-            box.position.z =
-              cameraObject.position.z - cameraObject.geometry.parameters.depth;
-            worldObjects.push(worldObject);
-            scene.add(box);
-          } else if (
-            numz ==
-            cameraObject.position.z + cameraObject.geometry.parameters.depth / 2
-          ) {
-            box.position.x = cameraObject.position.x;
-            box.position.y = cameraObject.position.y;
-            box.position.z =
-              cameraObject.position.z + cameraObject.geometry.parameters.depth;
-            worldObjects.push(worldObject);
-            scene.add(box);
-          }
-          // alert(cameraObject.scale.x + " " + cameraObject.scale.y + " " + cameraObject.scale.z)
-          // alert(numz + " " + cameraObject.position.z + cameraObject.scale.z);
+        if (obj.shape == "model") {
+          //   if (cameraDistanceModel(camera).object.name == "floor") {
+          //     let modelObject = {
+          //       x: 0,
+          //       y: 0,
+          //       z: 0,
+          //     };
+          //   }
+          //   console.log(cameraObject);
+          //   if (cameraObject.name != "floor") {
+          //     if (
+          //       numy ==
+          //       cameraObject.position.y +
+          //         cameraObject.geometry.parameters.height / 2
+          //     ) {
+          //       loadGLTF(
+          //         obj.modelName,
+          //         cameraObject.position.x,
+          //         cameraObject.position.y +
+          //           cameraObject.geometry.parameters.height,
+          //         cameraObject.position.z,
+          //         10,
+          //         10,
+          //         10
+          //       );
+          //     } else if (
+          //       numy ==
+          //       cameraObject.position.y -
+          //         cameraObject.geometry.parameters.height / 2
+          //     ) {
+          //       loadGLTF(
+          //         obj.modelName,
+          //         cameraObject.position.x,
+          //         cameraObject.position.y -
+          //           cameraObject.geometry.parameters.height,
+          //         cameraObject.position.z,
+          //         10,
+          //         10,
+          //         10
+          //       );
+          //     } else if (
+          //       numx ==
+          //       cameraObject.position.x +
+          //         cameraObject.geometry.parameters.width / 2
+          //     ) {
+          //       loadGLTF(
+          //         obj.modelName,
+          //         cameraObject.position.x +
+          //           cameraObject.geometry.parameters.width,
+          //         cameraObject.position.y,
+          //         cameraObject.position.z,
+          //         10,
+          //         10,
+          //         10
+          //       );
+          //     } else if (
+          //       numx ==
+          //       cameraObject.position.x -
+          //         cameraObject.geometry.parameters.width / 2
+          //     ) {
+          //       loadGLTF(
+          //         obj.modelName,
+          //         cameraObject.position.x -
+          //           cameraObject.geometry.parameters.width,
+          //         cameraObject.position.y,
+          //         cameraObject.position.z,
+          //         10,
+          //         10,
+          //         10
+          //       );
+          //     } else if (
+          //       numz ==
+          //       cameraObject.position.z -
+          //         cameraObject.geometry.parameters.depth / 2
+          //     ) {
+          //       loadGLTF(
+          //         obj.modelName,
+          //         cameraObject.position.x,
+          //         cameraObject.position.y,
+          //         cameraObject.position.z -
+          //           cameraObject.geometry.parameters.depth,
+          //         10,
+          //         10,
+          //         10
+          //       );
+          //     } else if (
+          //       numz ==
+          //       cameraObject.position.z +
+          //         cameraObject.geometry.parameters.depth / 2
+          //     ) {
+          //       loadGLTF(
+          //         obj.modelName,
+          //         cameraObject.position.x,
+          //         cameraObject.position.y,
+          //         cameraObject.position.z +
+          //           cameraObject.geometry.parameters.depth,
+          //         10,
+          //         10,
+          //         10
+          //       );
+          //     }
+          //     // alert(cameraObject.scale.x + " " + cameraObject.scale.y + " " + cameraObject.scale.z)
+          //     // alert(numz + " " + cameraObject.position.z + cameraObject.scale.z);
+          //   } else {
+          //     loadGLTF(obj.modelName, numx, numy, numz, 10, 10, 10);
+          //     // console.log(cameraObject.name);
+          //     // console.log(scene.children, box, worldObject.object);
+          //   }
         } else {
-          console.log(cameraObject.name);
-          worldObjects.push(worldObject);
-          scene.add(box);
-          console.log(scene.children, box, worldObject.object);
+          // console.log(finalx, finalz);
+
+          // if(pz > oZ) {
+          //   console.log('front');
+          // }
+          // if(pz < oZ) {
+          //   console.log('back');
+          // }
+
+          // if(px > oX) {
+          //   console.log('right');
+          // }
+          // if(px < oX) {
+          //   console.log('left');
+          // }
+
+          // if (
+          //   yawObject.position.z >
+          //     cameraDistance(camera).object.position.z -
+          //       cameraDistance(camera).object.geometry.parameters.depth / 2 &&
+          //   yawObject.position.z <
+          //     cameraDistance(camera).object.position.z +
+          //       cameraDistance(camera).object.geometry.parameters.depth / 2 &&
+          //   yawObject.position.x >
+          //     cameraDistance(camera).object.position.x +
+          //       cameraDistance(camera).object.geometry.parameters.width / 2
+          // ) {
+          //   console.log("asd");
+          // }
+          // let geom = new THREE.BoxBufferGeometry(size, size, size);
+          // let mat = new THREE.MeshBasicMaterial({ color: "yellow" });
+          // let cube = new THREE.Mesh(geom, mat);
+
+          // kinda working
+          // cube.position.x = Math.ceil(-floorWidth / 2 + (finalx * (45 / 4)) + (size / 4));
+          // cube.position.z = Math.ceil(-floorHeight/2 + (finalz * (45/4)) + (size / 4));
+
+          // beofre one above ^
+          // cube.position.z = -floorHeight/2 4a4+ (finalz * (45/4));
+          // cube.position.x = (-floorWidth / 2 ) + (finalx * (45 / 4));
+
+          // idk
+          // cube.position.z = (-floorHeight / 2 ) + (finalz * (45 / 4));;
+
+          // if (obj.shape == "box") {
+          //   console.log(obj);
+
+          //   console.log(box.position);
+          // }
+          let geom = new THREE.BoxBufferGeometry(
+            obj.scaleX,
+            obj.scaleY,
+            obj.scaleZ
+          );
+
+          let mat = new THREE.MeshBasicMaterial({
+            color: `rgb(${obj.red}, ${obj.green}, ${obj.blue})`,
+          });
+
+          let box = new THREE.Mesh(geom, mat);
+          box.position.x = numx;
+          box.position.y = numy + obj.scaleY / 2;
+          box.position.z = numz;
+          box.receiveShadow = true;
+          box.castShadow = true;
+
+          let id = Math.ceil(Math.random() * 1721272);
+
+          worldObjects.forEach((o) => {
+            if (o.id == id) {
+              id = Math.ceil(Math.random() * 1721272);
+            }
+          });
+          box.name = obj.blockType + "," + id;
+
+          let worldObject = {
+            object: box,
+            outlined: false,
+            id: id,
+            r: box.material.color.r,
+            g: box.material.color.g,
+            b: box.material.color.b,
+            blockLogic: null,
+            type: "block",
+            velX: 0,
+            velY: 0,
+            velZ: 0,
+          };
+          switch (selectedSlot.selected.blockType) {
+            case "conveyor":
+              let c = new Conveyor();
+              worldObject.blockLogic = c;
+              break;
+          }
+
+          if (cameraObject.name != "floor") {
+            // console.log(
+            //   numz,
+            //   cameraDistance(camera).point,
+            //   cameraObject.position.z
+            // );
+            if (
+              numy ==
+              cameraObject.position.y +
+                cameraObject.geometry.parameters.height / 2
+            ) {
+              box.position.x = cameraObject.position.x;
+              box.position.y =
+                cameraObject.position.y +
+                cameraObject.geometry.parameters.height;
+              box.position.z = cameraObject.position.z;
+              worldObjects.push(worldObject);
+              scene.add(box);
+            } else if (
+              numy ==
+              cameraObject.position.y -
+                cameraObject.geometry.parameters.height / 2
+            ) {
+              box.position.x = cameraObject.position.x;
+              box.position.y =
+                cameraObject.position.y -
+                cameraObject.geometry.parameters.height;
+              box.position.z = cameraObject.position.z;
+              worldObjects.push(worldObject);
+              scene.add(box);
+            } else if (
+              numx ==
+              cameraObject.position.x +
+                cameraObject.geometry.parameters.width / 2
+            ) {
+              box.position.x =
+                cameraObject.position.x +
+                cameraObject.geometry.parameters.width;
+              box.position.y = cameraObject.position.y;
+              box.position.z = cameraObject.position.z;
+              worldObjects.push(worldObject);
+              scene.add(box);
+            } else if (
+              numx ==
+              cameraObject.position.x -
+                cameraObject.geometry.parameters.width / 2
+            ) {
+              box.position.x =
+                cameraObject.position.x -
+                cameraObject.geometry.parameters.width;
+              box.position.y = cameraObject.position.y;
+              box.position.z = cameraObject.position.z;
+              worldObjects.push(worldObject);
+              scene.add(box);
+            } else if (
+              numz ==
+              cameraObject.position.z -
+                cameraObject.geometry.parameters.depth / 2
+            ) {
+              box.position.x = cameraObject.position.x;
+              box.position.y = cameraObject.position.y;
+              box.position.z =
+                cameraObject.position.z -
+                cameraObject.geometry.parameters.depth;
+              worldObjects.push(worldObject);
+              scene.add(box);
+            } else if (
+              numz ==
+              cameraObject.position.z +
+                cameraObject.geometry.parameters.depth / 2
+            ) {
+              box.position.x = cameraObject.position.x;
+              box.position.y = cameraObject.position.y;
+              box.position.z =
+                cameraObject.position.z +
+                cameraObject.geometry.parameters.depth;
+              worldObjects.push(worldObject);
+              scene.add(box);
+            }
+            // alert(cameraObject.scale.x + " " + cameraObject.scale.y + " " + cameraObject.scale.z)
+            // alert(numz + " " + cameraObject.position.z + cameraObject.scale.z);
+          } else {
+            // console.log(cameraObject.name);
+            worldObjects.push(worldObject);
+            scene.add(box);
+            // console.log(scene.children, box, worldObject.object);
+          }
         }
 
         // cube.position.x = numx;
@@ -1243,12 +1645,12 @@
         }
 
         worldObjects.forEach((o) => {
+          if (o.type == "Group") return;
           o.object.material.color.r = o.r;
           o.object.material.color.g = o.g;
           o.object.material.color.b = o.b;
 
           o.object.position.x += o.velX;
-          o.object.position.y += o.velY;
           o.object.position.y *= gravity;
           o.object.position.z += o.velZ;
 
@@ -1256,11 +1658,12 @@
             o.object.position.y - o.object.geometry.parameters.height / 2 <
             0
           ) {
-            o.object.position.y = 0 + o.object.geometry.parameters.height / 2;
+            o.object.position.y = o.object.geometry.parameters.height / 2;
           }
 
           worldObjects.forEach((o2) => {
-            if (o == o2) return;
+            if (o2.type == "Group") return;
+            if (o == o2 || o.type == "material") return;
             let obj1 = o.object;
             let obj2 = o2.object;
 
@@ -1269,7 +1672,6 @@
               obj1.position.y - obj1.geometry.parameters.height / 2 <
                 obj2.position.y + obj2.geometry.parameters.height / 2
             ) {
-              o2.velY = 0;
               obj2.position.y =
                 obj1.position.y + obj2.geometry.parameters.height;
             }
@@ -1621,9 +2023,9 @@
           }
           if (o.type == "material") {
             let prevVelX = o.velX;
-            let prevVelY = o.velY;
             let prevVelZ = o.velZ;
             worldObjects.forEach((wo) => {
+              if (wo.type == "Group") return;
               let x = o.object.position.x;
               let y = o.object.position.y;
               let z = o.object.position.z;
@@ -1642,15 +2044,13 @@
 
               if (woName != "MapObject" && woName != null && woName != "") {
                 if (
-                  y - sy < wy + wsy / 2 &&
-                  x > wx - wsx / 2 &&
-                  x < wx + wsx / 2 &&
-                  z > wz - wsz / 2 &&
-                  z < wz + wsz / 2
+                  inBetweenFunc(o.object, wo.object) &&
+                  y - sy / 2 < wy + wsy / 2
                 ) {
-                  o.velY = 0;
-                  // o.object.position.y = wy + wsy / 2;
-                  if (wo.blockLogic) {
+                  o.object.position.y =
+                    wo.object.position.y +
+                    wo.object.geometry.parameters.height / 2;
+                  if (wo.blockLogic && o.object != wo.object) {
                     if (wo.blockLogic.direction) {
                       if (wo.blockLogic.direction == "north") {
                         o.velZ = -wo.blockLogic.speed;
@@ -1675,8 +2075,8 @@
                     }
                   }
                 } else {
-                  o.velZ *= 0.3;
-                  o.velY = -1 - gravity;
+                  // o.velZ *= 0.01;
+                  o.velY = -gravity;
                 }
               }
             });
@@ -1707,6 +2107,11 @@
         if (e.key == "`" || e.key == "~") {
           gameConsole.open = !gameConsole.open;
         }
+        if (e.key == "k") {
+          placeModel("./models/box.gltf", 10, 10, 10);
+          // cameraDistanceModel(camera);
+          // player.rightClick();
+        }
         if (e.key == "j") {
           let exampleGeom = new THREE.BoxBufferGeometry(1, 1, 1);
           let exampleMat = new THREE.MeshBasicMaterial({ color: "brown" });
@@ -1723,7 +2128,6 @@
             green: 42,
             blue: 42,
             velX: 0,
-            velY: -1,
             velZ: 0,
           };
           worldObjects.push(obj);
@@ -1747,7 +2151,6 @@
             break;
           case "4":
             selectedSlot = inventorySlots[3];
-            placeObject(yawObject);
             break;
           case "5":
             selectedSlot = inventorySlots[4];
@@ -2154,9 +2557,9 @@
 
       var controls, arrow, world;
 
+      let spotlight;
       init();
       animate();
-
       function init() {
         world = new THREE.Group();
 
@@ -2173,25 +2576,35 @@
 
         window.addEventListener("resize", onWindowResize, false);
 
-        let ambientLight = new THREE.AmbientLight(0x000000, 100);
+        let ambientLight = new THREE.AmbientLight(0x404040, 0);
         scene.add(ambientLight);
 
-        var light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
-        light.position.set(0, 100, 0.4);
+        // let light = new THREE.DirectionalLight(0xffffff, 1);
+        // light.position.set(10, 10, -10);
+        // light.castShadow = true;
+        // scene.add(light);
+
+        // spotlight = new THREE.SpotLight(0xffa95c, 10);
+        // spotlight.castShadow = true;
+        // spotlight.position.set(0, 1000, 0);
+        // scene.add(spotlight);
+
+        var light = new THREE.HemisphereLight(0xffeeb1, 0x080820, 1);
+        // light.position.set(0, 100, 0.4);
         scene.add(light);
 
-        var dirLight = new THREE.SpotLight(0xffffff, 0.5, 0.0, 180.0);
-        dirLight.color.setHSL(0.1, 1, 0.95);
-        dirLight.position.set(100, 300, 100);
-        dirLight.castShadow = true;
-        dirLight.lookAt(new THREE.Vector3());
-        scene.add(dirLight);
+        // var dirLight = new THREE.SpotLight(0xffffff, 0.5, 0.0, 180.0);
+        // dirLight.color.setHSL(0.1, 1, 0.95);
+        // dirLight.position.set(100, 300, 100);
+        // dirLight.castShadow = true;
+        // dirLight.lookAt(new THREE.Vector3());
+        // scene.add(dirLight);
 
-        dirLight.shadow.mapSize.width = 2096;
-        dirLight.shadow.mapSize.height = 4096;
-        dirLight.shadow.camera.far = 3000;
+        // dirLight.shadow.mapSize.width = 2096;
+        // dirLight.shadow.mapSize.height = 4096;
+        // dirLight.shadow.camera.far = 3000;
 
-        // var dirLightHeper = new THREE.SpotLightHelper( dirLight, 10 );
+        // var dirLightHeper = new THREE.SpotLightHelper( light, 10 );
         // scene.add( dirLightHeper );
 
         controls = new THREE.FirstPersonControls(camera);
@@ -2264,7 +2677,7 @@
 
       function animate() {
         requestAnimationFrame(animate);
-
+        // spotlight.position.set(yawObject.position.x, yawObject.position.y, yawObject.position.z)
         if (controls.enabled === true) {
           controls.update();
 
