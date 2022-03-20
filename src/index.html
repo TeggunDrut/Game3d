@@ -14,7 +14,7 @@
       <div class="rightBox" id="rightBox"></div>
       <div class="bottomBox" id="bottomBox"></div>
     </div>
-    <div class="inventory">
+    <div class="inventory" id="inventory">
       <div class="slot1 slot selected" id="slot1">
         <p class="slotNum">1</p>
       </div>
@@ -37,7 +37,7 @@
         <p class="slotNum">7</p>
       </div>
     </div>
-    <div class="options" id="options" style="display: none">
+    <div class="options" id="options" style="display:none;">
       <div class="title">
         <h2>Options</h2>
       </div>
@@ -193,16 +193,32 @@
             />
           </div>
         </div>
-        <div id="keybindUI" style="width: 100%; display: none"></div>
+        <div id="keybindUI" style="width: 100%; display: none">
+          <div style="display: grid; grid-template-columns: 50% 50%; background-color: #2e333f; position: absolute; left: 0; right: 0; margin: auto; padding:" class="container">
+            <div class="keybind">Move Forward</div>
+            <div class="keybind" id="keyChange" id="keyChange">[ W ]</div>
+            <div class="keybind">Move Left</div>
+            <div class="keybind" id="keyChange" id="keyChange">[ A ]</div>
+            <div class="keybind">Move Back</div>
+            <div class="keybind" id="keyChange" id="keyChange">[ S ]</div>
+            <div class="keybind">Move Right</div>
+            <div class="keybind" id="keyChange" id="keyChange">[ D ]</div>
+            <div class="keybind">Attack</div>
+            <div class="keybind" id="keyChange" id="keyChange">[ Left Mouse Button ]</div>
+            <div class="keybind">Interact / Place</div>
+            <div class="keybind" id="keyChange" id="keyChange">[ Right Mouse Button ]</div>
+          
+          </div>
+        </div>
       </div>
-      <div class="reload" onclick="location.href = location.href">Reload</div>
+      <!-- <div class="reload" onclick="location.href = location.href">Reload</div> -->
     </div>
 
     <!-- <div class="crosshair"> -->
 
     <!-- </div> -->
     <!-- <div class="lockPointerContainer" id="lockPointerContainer"></div> -->
-    <canvas id="canvas"></canvas>
+    <canvas id="canvas" style="display:none;"></canvas>
 
     <div id="console"></div>
     <!-- Libraries -->
@@ -226,7 +242,7 @@
     <script src="js/Game/Objects/Conveyor.js"></script>
     <script type="module">
       // import * as THREE from "three";
-      import { FBXLoader } from "./jsm/loaders/FBXLoader.js";
+      // import { FBXLoader } from "./jsm/loaders/FBXLoader.js";
       import { GLTFLoader } from "./jsm/loaders/GLTFLoader.js";
       // Globals
 
@@ -334,45 +350,46 @@
       let o = false;
 
       let gltf = new GLTFLoader();
-      function getModelBox(modelName) {
-        // let obj = {
-        //   left: 0,
-        //   right: 0,
-        //   front: 0,
-        //   back: 0,
-        //   top: 0,
-        //   bottom: 0,
-        // };
-        let obj = {
-          x: 0,
-          y: 0,
-          z: 0,
-        };
-        gltf.load("./models/box.gltf", (result) => {
-          let maxX = 0;
-          let maxY = 0;
-          let maxZ = 0;
+      // function getModelBox(modelName) {
 
-          result.scene.scale.set(0.5, 0.5, 0.5);
+      //   // let obj = {
+      //   //   left: 0,
+      //   //   right: 0,
+      //   //   front: 0,
+      //   //   back: 0,
+      //   //   top: 0,
+      //   //   bottom: 0,
+      //   // };
+      //   let obj = {
+      //     x: 0,
+      //     y: 0,
+      //     z: 0,
+      //   };
+      //   gltf.load("./models/box.gltf", (result) => {
+      //     let maxX = 0;
+      //     let maxY = 0;
+      //     let maxZ = 0;
 
-          result.scene.children.forEach((o) => {
-            if (o.position.x > maxX) {
-              maxX = o.position.x;
-            }
-            if (o.position.y > maxY) {
-              maxY = o.position.y;
-            }
-            if (o.position.z > maxZ) {
-              maxZ = o.position.z;
-            }
-          });
-          obj.x = maxX;
-          obj.y = maxY;
-          obj.z = maxZ;
-          console.log(obj);
-          return obj;
-        });
-      }
+      //     result.scene.scale.set(0.5, 0.5, 0.5);
+
+      //     result.scene.children.forEach((o) => {
+      //       if (o.position.x > maxX) {
+      //         maxX = o.position.x;
+      //       }
+      //       if (o.position.y > maxY) {
+      //         maxY = o.position.y;
+      //       }
+      //       if (o.position.z > maxZ) {
+      //         maxZ = o.position.z;
+      //       }
+      //     });
+      //     obj.x = maxX;
+      //     obj.y = maxY;
+      //     obj.z = maxZ;
+      //     console.log(obj);
+      //     return obj;
+      //   });
+      // }
 
       function loadGLTF(name, x, y, z, scaleX, scaleY, scaleZ) {
         gltf.load(name, (result) => {
@@ -444,7 +461,13 @@
       itemHolder.name = "itemHolder";
       itemHolder.position.copy(yawObject.position);
 
+
+
       let player = {
+        //weapon
+        currentWeapon: {},
+        
+
         x: 10,
         y: 10,
         z: -50,
@@ -535,10 +558,10 @@
 
         bullets.push({ b: bullet, x: x, y: y, z: z });
       }
-
       document.addEventListener("mousedown", (e) => {
         if (!paused) {
           mouseDown = true;
+          player.rightClick();
 
           if (e.button == 0) {
             player.leftClick();
@@ -725,7 +748,10 @@
             );
           }
           // if(cameraDistanceModel(camera, false).list[0].name == "top" && cameraDistanceModel(camera, false).list[1].name == "left" || sectObj.name == "left" || sectObj.name.search("left") >= 0) {
-          if (leastDistObj.name == "left" || leastDistObj.name.search("left") >= 0) {
+          if (
+            leastDistObj.name == "left" ||
+            leastDistObj.name.search("left") >= 0
+          ) {
             loadGLTF(
               modelDir,
               sectObj.parent.position.x - sectObj.scale.x,
@@ -739,137 +765,137 @@
           }
           // console.log(cameraDistanceModel(camera, false).list[0].object);
 
-          // if (
-          //   numy ==
-          //   Math.round(
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position.y
-          //   )
-          // ) {
-          //   console.log(cameraDistanceModel(camera, false).list);
-          // loadGLTF(
-          //   modelDir,
-          //   cameraDistanceModel(camera, false).list[0].object.parent.position
-          //     .x,
-          //   cameraDistanceModel(camera, false).list[0].object.parent.position.y,
-          //   cameraDistanceModel(camera, false).list[0].object.parent.position
-          //     .z,
-          //   scaleX,
-          //   scaleY,
-          //   scaleZ
-          // );
-          //   console.log(1);
-          //   return;
-          // } else if (
-          //   numy ==
-          //   Math.round(
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position.y
-          //   ) -
-          //     cameraDistanceModel(camera, false).list[0].object.scale.y / 2
-          // ) {
-          //   loadGLTF(
-          //     modelDir,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position
-          //       .x,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position.y -
-          //       cameraDistanceModel(camera, false).list[0].object.scale.y,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position
-          //       .z,
-          //     scaleX,
-          //     scaleY,
-          //     scaleZ
-          //   );
-          //   console.log(1);
-          //   return;
-          // } else if (
-          //   numx ==
-          //   Math.round(
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position.x
-          //   )
-          // ) {
-          //   loadGLTF(
-          //     modelDir,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position.x,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position.y,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position
-          //       .z,
-          //     scaleX,
-          //     scaleY,
-          //     scaleZ
-          //   );
-          //   console.log(1);
-          //   return;
-          // } else if (
-          //   numx ==
-          //   Math.round(
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position.x
-          //   )
-          // ) {
-          //   loadGLTF(
-          //     modelDir,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position.x -
-          //       cameraDistanceModel(camera, false).list[0].object.scale.x,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position
-          //       .y,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position
-          //       .z,
-          //     scaleX,
-          //     scaleY,
-          //     scaleZ
-          //   );
-          //   console.log(1);
-          //   return;
-          // } else if (
-          //   numz ==
-          //   Math.round(
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position.z
-          //   )
-          // ) {
-          //   loadGLTF(
-          //     modelDir,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position
-          //       .x,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position
-          //       .y,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position.z -
-          //       cameraDistanceModel(camera, false).list[0].object.scale.z,
-          //     scaleX,
-          //     scaleY,
-          //     scaleZ
-          //   );
-          //   console.log(1);
-          //   return;
-          // } else if (
-          //   numz ==
-          //   Math.round(
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position.z
-          //   )
-          // ) {
-          //   loadGLTF(
-          //     modelDir,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position
-          //       .x,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position
-          //       .y,
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position.z +
-          //       cameraDistanceModel(camera, false).list[0].object.scale.z,
-          //     scaleX,
-          //     scaleY,
-          //     scaleZ
-          //   );
-          // }
-          // console.log(
-          //   "end",
-          //   cameraDistanceModel(camera, false).list[0],
-          //   numx,
-          //   Math.round(
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position.x
-          //   ),
-          //   cameraDistanceModel(camera, false).list[0].object.parent.position.x,
-          //   Math.round(
-          //     cameraDistanceModel(camera, false).list[0].object.parent.position
-          //       .x
-          //   )
-          // );
+          if (
+            numy ==
+            Math.round(
+              cameraDistanceModel(camera, false).list[0].object.parent.position.y
+            )
+          ) {
+            console.log(cameraDistanceModel(camera, false).list);
+          loadGLTF(
+            modelDir,
+            cameraDistanceModel(camera, false).list[0].object.parent.position
+              .x,
+            cameraDistanceModel(camera, false).list[0].object.parent.position.y,
+            cameraDistanceModel(camera, false).list[0].object.parent.position
+              .z,
+            scaleX,
+            scaleY,
+            scaleZ
+          );
+            console.log(1);
+            return;
+          } else if (
+            numy ==
+            Math.round(
+              cameraDistanceModel(camera, false).list[0].object.parent.position.y
+            ) -
+              cameraDistanceModel(camera, false).list[0].object.scale.y / 2
+          ) {
+            loadGLTF(
+              modelDir,
+              cameraDistanceModel(camera, false).list[0].object.parent.position
+                .x,
+              cameraDistanceModel(camera, false).list[0].object.parent.position.y -
+                cameraDistanceModel(camera, false).list[0].object.scale.y,
+              cameraDistanceModel(camera, false).list[0].object.parent.position
+                .z,
+              scaleX,
+              scaleY,
+              scaleZ
+            );
+            console.log(1);
+            return;
+          } else if (
+            numx ==
+            Math.round(
+              cameraDistanceModel(camera, false).list[0].object.parent.position.x
+            )
+          ) {
+            loadGLTF(
+              modelDir,
+              cameraDistanceModel(camera, false).list[0].object.parent.position.x,
+              cameraDistanceModel(camera, false).list[0].object.parent.position.y,
+              cameraDistanceModel(camera, false).list[0].object.parent.position
+                .z,
+              scaleX,
+              scaleY,
+              scaleZ
+            );
+            console.log(1);
+            return;
+          } else if (
+            numx ==
+            Math.round(
+              cameraDistanceModel(camera, false).list[0].object.parent.position.x
+            )
+          ) {
+            loadGLTF(
+              modelDir,
+              cameraDistanceModel(camera, false).list[0].object.parent.position.x -
+                cameraDistanceModel(camera, false).list[0].object.scale.x,
+              cameraDistanceModel(camera, false).list[0].object.parent.position
+                .y,
+              cameraDistanceModel(camera, false).list[0].object.parent.position
+                .z,
+              scaleX,
+              scaleY,
+              scaleZ
+            );
+            console.log(1);
+            return;
+          } else if (
+            numz ==
+            Math.round(
+              cameraDistanceModel(camera, false).list[0].object.parent.position.z
+            )
+          ) {
+            loadGLTF(
+              modelDir,
+              cameraDistanceModel(camera, false).list[0].object.parent.position
+                .x,
+              cameraDistanceModel(camera, false).list[0].object.parent.position
+                .y,
+              cameraDistanceModel(camera, false).list[0].object.parent.position.z -
+                cameraDistanceModel(camera, false).list[0].object.scale.z,
+              scaleX,
+              scaleY,
+              scaleZ
+            );
+            console.log(1);
+            return;
+          } else if (
+            numz ==
+            Math.round(
+              cameraDistanceModel(camera, false).list[0].object.parent.position.z
+            )
+          ) {
+            loadGLTF(
+              modelDir,
+              cameraDistanceModel(camera, false).list[0].object.parent.position
+                .x,
+              cameraDistanceModel(camera, false).list[0].object.parent.position
+                .y,
+              cameraDistanceModel(camera, false).list[0].object.parent.position.z +
+                cameraDistanceModel(camera, false).list[0].object.scale.z,
+              scaleX,
+              scaleY,
+              scaleZ
+            );
+          }
+          console.log(
+            "end",
+            cameraDistanceModel(camera, false).list[0],
+            numx,
+            Math.round(
+              cameraDistanceModel(camera, false).list[0].object.parent.position.x
+            ),
+            cameraDistanceModel(camera, false).list[0].object.parent.position.x,
+            Math.round(
+              cameraDistanceModel(camera, false).list[0].object.parent.position
+                .x
+            )
+          );
           return;
         }
         if (cameraDistance(camera).object.name == "floor") {
@@ -899,113 +925,113 @@
         let finalz = Math.ceil(newZ / (45 / 4));
         let cameraObject = cameraDistance(camera).object;
         if (obj.shape == "model") {
-          //   if (cameraDistanceModel(camera).object.name == "floor") {
-          //     let modelObject = {
-          //       x: 0,
-          //       y: 0,
-          //       z: 0,
-          //     };
-          //   }
-          //   console.log(cameraObject);
-          //   if (cameraObject.name != "floor") {
-          //     if (
-          //       numy ==
-          //       cameraObject.position.y +
-          //         cameraObject.geometry.parameters.height / 2
-          //     ) {
-          //       loadGLTF(
-          //         obj.modelName,
-          //         cameraObject.position.x,
-          //         cameraObject.position.y +
-          //           cameraObject.geometry.parameters.height,
-          //         cameraObject.position.z,
-          //         10,
-          //         10,
-          //         10
-          //       );
-          //     } else if (
-          //       numy ==
-          //       cameraObject.position.y -
-          //         cameraObject.geometry.parameters.height / 2
-          //     ) {
-          //       loadGLTF(
-          //         obj.modelName,
-          //         cameraObject.position.x,
-          //         cameraObject.position.y -
-          //           cameraObject.geometry.parameters.height,
-          //         cameraObject.position.z,
-          //         10,
-          //         10,
-          //         10
-          //       );
-          //     } else if (
-          //       numx ==
-          //       cameraObject.position.x +
-          //         cameraObject.geometry.parameters.width / 2
-          //     ) {
-          //       loadGLTF(
-          //         obj.modelName,
-          //         cameraObject.position.x +
-          //           cameraObject.geometry.parameters.width,
-          //         cameraObject.position.y,
-          //         cameraObject.position.z,
-          //         10,
-          //         10,
-          //         10
-          //       );
-          //     } else if (
-          //       numx ==
-          //       cameraObject.position.x -
-          //         cameraObject.geometry.parameters.width / 2
-          //     ) {
-          //       loadGLTF(
-          //         obj.modelName,
-          //         cameraObject.position.x -
-          //           cameraObject.geometry.parameters.width,
-          //         cameraObject.position.y,
-          //         cameraObject.position.z,
-          //         10,
-          //         10,
-          //         10
-          //       );
-          //     } else if (
-          //       numz ==
-          //       cameraObject.position.z -
-          //         cameraObject.geometry.parameters.depth / 2
-          //     ) {
-          //       loadGLTF(
-          //         obj.modelName,
-          //         cameraObject.position.x,
-          //         cameraObject.position.y,
-          //         cameraObject.position.z -
-          //           cameraObject.geometry.parameters.depth,
-          //         10,
-          //         10,
-          //         10
-          //       );
-          //     } else if (
-          //       numz ==
-          //       cameraObject.position.z +
-          //         cameraObject.geometry.parameters.depth / 2
-          //     ) {
-          //       loadGLTF(
-          //         obj.modelName,
-          //         cameraObject.position.x,
-          //         cameraObject.position.y,
-          //         cameraObject.position.z +
-          //           cameraObject.geometry.parameters.depth,
-          //         10,
-          //         10,
-          //         10
-          //       );
-          //     }
-          //     // alert(cameraObject.scale.x + " " + cameraObject.scale.y + " " + cameraObject.scale.z)
-          //     // alert(numz + " " + cameraObject.position.z + cameraObject.scale.z);
-          //   } else {
-          //     loadGLTF(obj.modelName, numx, numy, numz, 10, 10, 10);
-          //     // console.log(cameraObject.name);
-          //     // console.log(scene.children, box, worldObject.object);
-          //   }
+          if (cameraDistanceModel(camera).object.name == "floor") {
+            let modelObject = {
+              x: 0,
+              y: 0,
+              z: 0,
+            };
+          }
+          console.log(cameraObject);
+          if (cameraObject.name != "floor") {
+            if (
+              numy ==
+              cameraObject.position.y +
+                cameraObject.geometry.parameters.height / 2
+            ) {
+              loadGLTF(
+                obj.modelName,
+                cameraObject.position.x,
+                cameraObject.position.y +
+                  cameraObject.geometry.parameters.height,
+                cameraObject.position.z,
+                10,
+                10,
+                10
+              );
+            } else if (
+              numy ==
+              cameraObject.position.y -
+                cameraObject.geometry.parameters.height / 2
+            ) {
+              loadGLTF(
+                obj.modelName,
+                cameraObject.position.x,
+                cameraObject.position.y -
+                  cameraObject.geometry.parameters.height,
+                cameraObject.position.z,
+                10,
+                10,
+                10
+              );
+            } else if (
+              numx ==
+              cameraObject.position.x +
+                cameraObject.geometry.parameters.width / 2
+            ) {
+              loadGLTF(
+                obj.modelName,
+                cameraObject.position.x +
+                  cameraObject.geometry.parameters.width,
+                cameraObject.position.y,
+                cameraObject.position.z,
+                10,
+                10,
+                10
+              );
+            } else if (
+              numx ==
+              cameraObject.position.x -
+                cameraObject.geometry.parameters.width / 2
+            ) {
+              loadGLTF(
+                obj.modelName,
+                cameraObject.position.x -
+                  cameraObject.geometry.parameters.width,
+                cameraObject.position.y,
+                cameraObject.position.z,
+                10,
+                10,
+                10
+              );
+            } else if (
+              numz ==
+              cameraObject.position.z -
+                cameraObject.geometry.parameters.depth / 2
+            ) {
+              loadGLTF(
+                obj.modelName,
+                cameraObject.position.x,
+                cameraObject.position.y,
+                cameraObject.position.z -
+                  cameraObject.geometry.parameters.depth,
+                10,
+                10,
+                10
+              );
+            } else if (
+              numz ==
+              cameraObject.position.z +
+                cameraObject.geometry.parameters.depth / 2
+            ) {
+              loadGLTF(
+                obj.modelName,
+                cameraObject.position.x,
+                cameraObject.position.y,
+                cameraObject.position.z +
+                  cameraObject.geometry.parameters.depth,
+                10,
+                10,
+                10
+              );
+            }
+            // alert(cameraObject.scale.x + " " + cameraObject.scale.y + " " + cameraObject.scale.z)
+            // alert(numz + " " + cameraObject.position.z + cameraObject.scale.z);
+          } else {
+            loadGLTF(obj.modelName, numx, numy, numz, 10, 10, 10);
+            // console.log(cameraObject.name);
+            // console.log(scene.children, box, worldObject.object);
+          }
         } else {
           // console.log(finalx, finalz);
 
@@ -1061,7 +1087,6 @@
             obj.scaleY,
             obj.scaleZ
           );
-
           let mat = new THREE.MeshBasicMaterial({
             color: `rgb(${obj.red}, ${obj.green}, ${obj.blue})`,
           });
@@ -1267,7 +1292,6 @@
         if (heldItem.scaleY > 2) item.geometry.parameters.height = 2;
         if (heldItem.scaleZ > 2) item.geometry.parameters.depth = 2;
         item.position.x = window.innerWidth / 140 - 6;
-        console.log(item.position.x);
         item.position.y = -2;
         item.position.z = -4;
 
@@ -1497,9 +1521,15 @@
       let delta = 0;
       // ---- Game Loop ----
       function loop() {
+        if (paused) {
+          console.log('asd1');
+          document.getElementById("options").style.display = "inline-block";
+        } else 
+        document.getElementById("options").style.display = "none";
         if (window.innerWidth < 1280) {
           return;
         }
+
         delta = clock.getDelta();
         if (playerCollisionWithWallTop()) {
           yawObject.position.z =
@@ -1519,6 +1549,8 @@
             floor.position.x + floorWidth / 2 - wallDistOff;
           // velocity.x -= direction.x * currentSpeed * delta;
         }
+        
+
         currentMap.forEach((box) => {
           let geom = new THREE.BoxGeometry(box.scaleX, box.scaleY, box.scaleZ);
           let mat = new THREE.MeshBasicMaterial({ color: box.color });
@@ -1554,9 +1586,7 @@
         });
         prevPlayerY = yawObject.position.y;
         // ui
-        if (paused)
-          document.getElementById("options").style.display = "inline-block";
-        else document.getElementById("options").style.display = "none";
+        
 
         // combat
         // alert(pitchObject.rotation.x + " " + pitchObject.rotation.y + " " + pitchObject.rotation.z );
@@ -2108,7 +2138,7 @@
           gameConsole.open = !gameConsole.open;
         }
         if (e.key == "k") {
-          placeModel("./models/box.gltf", 10, 10, 10);
+          // placeModel("./models/box.gltf", 10, 10, 10);
           // cameraDistanceModel(camera);
           // player.rightClick();
         }
@@ -2558,8 +2588,15 @@
       var controls, arrow, world;
 
       let spotlight;
-      init();
-      animate();
+      for(let i = 0; i < document.getElementsByClassName("keyChange").length; i++) {
+        alert(i)
+        document.getElementsByClassName("keyChange")[i].onclick = () => {
+          alert(i)
+        }
+      }
+    // document.getElementsByClassName("keybind")
+      // init();
+      // animate();
       function init() {
         world = new THREE.Group();
 
@@ -2649,6 +2686,17 @@
 
         scene.add(zerozeroMarker);
         scene.add(world);
+      }
+      document.getElementById("startGame").onclick = () => {
+        document.getElementById("screen-first").style.display = "none";
+
+        document.getElementById("crosshairContainer").style.display = "flex";
+        document.getElementById("inventory").style.display = "flex";
+
+        // docuemtn.getElementById("crosshairContainer").style.display = "inline-block";
+        canvas.style.display = "inline-block";
+        init();
+        animate();
       }
       function addToScene(obj) {
         scene.add(obj);
@@ -2840,6 +2888,40 @@
       //   });
       // };
     </script>
+
+    <div class="screen-first" id="screen-first" style="">
+      <div
+        id="screen-first-con"
+        style="display: flex; justify-content: center; align-items: center; width: 100%; height:100%;"
+      >
+        <input
+          type="text"
+          class="nickname"
+          id="nickname"
+          placeholder="Enter a Nickname"
+          onchange="document.getElementById('nickname').classList.add('pullup'); setTimeout(()=> {
+            document.getElementById('nickname').classList.remove('pullup'); 
+            document.getElementById('nickname').style.bottom = '200px';  
+            
+            setTimeout(()=>{
+              document.getElementById('saveDiv').style.display = 'inline-block'; 
+              }, 400)  
+            }, 900); "
+        />
+      </div>
+      <div class="saveDiv" id="saveDiv">
+        <p
+          style="color: gray; padding-left: 10px; margin-top: 15px; font-size: x-large;"
+        >
+          Did you save last time?
+        </p>
+
+        <input class="fileButton" id="fileButton" type="file" />
+        <button class="startGame" id="startGame">
+          No? Start a New Game
+        </button>
+      </div>
+    </div>
 
     <!-- <script src="js/Game/global.js"></script> -->
     <!-- <script src="js/Game/Console/Console.js"></script> -->
