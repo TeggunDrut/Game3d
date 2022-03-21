@@ -15,12 +15,12 @@ function addHeldItemToScene() {
     color: `rgb(${heldItem.red}, ${heldItem.green}, ${heldItem.blue})`,
   });
   let item = new THREE.Mesh(itemGeom, itemMat);
+  item.name = itemName;
   console.log(item);
   if (heldItem.scaleX > 2) item.geometry.parameters.width = 2;
   if (heldItem.scaleY > 2) item.geometry.parameters.height = 2;
   if (heldItem.scaleZ > 2) item.geometry.parameters.depth = 2;
   item.position.x = (window.innerWidth / 140) - 6;
-  console.log(item.position.x);
   item.position.y = -2;
   item.position.z = -4;
 
