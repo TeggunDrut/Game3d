@@ -203,7 +203,7 @@
               left: 0;
               right: 0;
               margin: auto;
-              padding: ;
+              padding: 0px;
             "
             class="container"
           >
@@ -255,10 +255,37 @@
     <script src="js/Game/global.js"></script>
     <script src="js/Game/Player/Player.js"></script>
     <script src="js/Game/Objects/Conveyor.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      // import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyAd_zHwowaYznxObWxHi8TW6P9L9mgsuYs",
+        authDomain: "tegg-multiserver.firebaseapp.com",
+        databaseURL: "https://tegg-multiserver-default-rtdb.firebaseio.com",
+        projectId: "tegg-multiserver",
+        storageBucket: "tegg-multiserver.appspot.com",
+        messagingSenderId: "418763559198",
+        appId: "1:418763559198:web:e5116f9b712e55ababf90f",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      // const app = initializeApp(firebaseConfig);
+    </script>
     <script type="module">
       // import * as THREE from "three";
       // import { FBXLoader } from "./jsm/loaders/FBXLoader.js";
-      import { GLTFLoader } from "./jsm/loaders/GLTFLoader.js";
+      // import { GLTFLoader } from "./jsm/loaders/GLTFLoader.js";
+      import { FontLoader } from "./jsm/loaders/FontLoader.js";
       // Globals
 
       var velocity = new THREE.Vector3();
@@ -363,8 +390,9 @@
       //   }
       // );
       let o = false;
+      let loader = new FontLoader();
 
-      let gltf = new GLTFLoader();
+      // let gltf = new GLTFLoader();
       // function getModelBox(modelName) {
 
       //   // let obj = {
@@ -415,20 +443,20 @@
           worldObjects.push(result.scene);
         });
       }
+      let currentHeldModel = [];
+
       function loadModelToPlayer(name, scaleX, scaleY, scaleZ, n) {
         gltf.load(name, (result) => {
+          currentHeldModel = [];
           result.scene.scale.set(scaleX, scaleY, scaleZ);
-          result.scene.position.set(
-            itemHolder.position.x,
-            itemHolder.position.y + scaleY / 2,
-            itemHolder.position.z
-          );
           result.scene.name = n;
-          itemHolder.add(result.scene);
+          currentHeldModel.push(result.scene);
+          scene.add(result.scene);
           worldObjects.push(result.scene);
         });
       }
 
+      // loadModelToPlayer("./models/m4.gltf", 1, 1, 1, "gun");
       // loadGLTF("./models/box.gltf", 20, 20, 10, 1, 1, 1);
       // ---- gltf ----
 
@@ -496,14 +524,64 @@
       placeHolder.position.z = -4;
       itemHolder.add(placeHolder);
 
-      loadModelToPlayer(
-        "./models/m4 suppresor.gltf",
-        0.2,
-        0.2,
-        0.2,
-        "M4 Supressor"
-      );
-      let player = {
+      let g = new THREE.BoxBufferGeometry(10, 5, 10);
+      let m = new THREE.MeshBasicMaterial({ color: "purple" });
+      let groundItem = new THREE.Mesh(g, m);
+      groundItem.position.set(0, 20, 0);
+      // worldObjects.push(groundItem);
+      scene.add(groundItem);
+
+      // loadModelToPlayer(
+      //   "./models/m4 suppresor.gltf",
+      //   0.2,
+      //   0.2,
+      //   0.2,
+      //   "M4 Supressor"
+      // );
+      player = {
+        // server
+        id: "",
+        ref: "",
+        name: "",
+        displayName: [
+          "GOD",
+          "Peasent",
+          "Knight",
+          "Wizard",
+          "Mage",
+          "Warrior",
+          "Rogue",
+          "Assassin",
+          "Bard",
+          "Monk",
+          "Necromancer",
+          "Paladin",
+          "Ranger",
+          "Sorcerer",
+          "Warlock",
+          "Witch",
+          "Druid",
+          "Berserker",
+          "Cleric",
+          "Shaman",
+          "Thief",
+          "Ninja",
+          "Samurai",
+          "Monk",
+          "Necromancer",
+          "Paladin",
+          "Ranger",
+          "Sorcerer",
+          "Warlock",
+          "Witch",
+          "Druid",
+          "Berserker",
+          "Cleric",
+          "Shaman",
+          "Thief",
+          "Ninja",
+          "Samurai",
+        ][Math.floor(Math.random() * 50)],
         //weapon
         currentHeldItem: {
           type: "weapon",
@@ -514,12 +592,16 @@
           scoped: false,
           path: "./models/m4 suppresor.gltf",
         },
-
         x: 10,
         y: 10,
         z: -50,
+        unfocusedPos: {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
         height: 30,
-        jumpHeight: 200,
+        jumpHeight: 100,
         placeDistance: 6,
         leftClick: function () {
           if (firstShot && selectedSlot.selected.type == "gun") {
@@ -1176,6 +1258,7 @@
             velX: 0,
             velY: 0,
             velZ: 0,
+            affectedByGravity: true,
           };
           switch (selectedSlot.selected.blockType) {
             case "conveyor":
@@ -1355,6 +1438,7 @@
         itemHolder.add(item);
         scene.add(itemHolder);
       }
+
       function removeHeldItems() {
         itemHolder.children = [];
         scene.remove(scene.getObjectByName("itemHolder"));
@@ -1578,41 +1662,92 @@
       let delta = 0;
       // ---- Game Loop ----
       function loop() {
+        scene.children.forEach((c) => {
+          if (c.children.length > 0) {
+            // console.log(c);
+            c.children.forEach((c2) => {
+              if (c2.type == "Object3D") {
+                let name = c2.name.split(",");
+                if (name[0] == "playerData") {
+                  switch (name[0]) {
+                    case "displayName":
+                      player.updateName(name[1]);
+                      break;
+                  }
+                }
+              } else if (c2.name == "displayName") {
+                var newDir = new THREE.Vector3(player.x, player.y, player.z);
+                var pos = new THREE.Vector3();
+                var box = new THREE.Box3().setFromObject(c2);
+
+                pos.add(newDir);
+                c2.lookAt(pos);
+                c2.geometry.parameters.text = player.displayName;
+                c2.position.y = 2;
+              }
+            });
+          }
+        });
+        if (player.ref)
+          player.ref.set({
+            responding: true,
+            id: player.id,
+            name: player.id,
+            position: {
+              x: player.x,
+              y: player.y,
+              z: player.z,
+            },
+          });
+        player.x = yawObject.position.x;
+        player.y = yawObject.position.y;
+        player.z = yawObject.position.z;
+
+        currentHeldModel.forEach((m) => {
+          m.position.x = 0;
+          m.position.y = 20;
+          m.position.z = 0;
+        });
+
         if (paused) {
           document.getElementById("options").style.display = "inline-block";
         } else document.getElementById("options").style.display = "none";
-        if (window.innerWidth < 1280) {
-          return;
-        }
-        if (
-          player.currentHeldItem != null ||
-          player.currentHeldItem != undefined
-        ) {
-          if (player.currentHeldItem.type == "weapon") {
-            itemHolder.getObjectByName(player.currentHeldItem.name).position.x = window.innerWidth / 140 - 6;
-            itemHolder.getObjectByName(player.currentHeldItem.name).position.y = -2;
-            itemHolder.getObjectByName(player.currentHeldItem.name).position.z = -4;
-            // itemHolder.position.x
-            // console.log(itemHolder.getObject.);
-            // itemHolder.getObjectByName(player.currentHeldItem.name).position.x =
-            //   yawObject.position.x + window.innerWidth / 140 - 6;
-            // itemHolder.getObjectByName(player.currentHeldItem.name).position.y =
-            //   yawObject.position.y - 2;
-            // itemHolder.getObjectByName(player.currentHeldItem.name).position.z =
-            //   yawObject.position.z - 4;
-            // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.set(itemHolder.rotation.x, itemHolder.rotation.y, itemHolder.rotation.z);
-            // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.x =
-            //   itemHolder.rotation.x;
-            // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.y = itemHolder.rotation.y;
-            // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.z =
-            //   itemHolder.rotation.z;
+        // if (window.innerWidth < 1280) {
+        //   return;
+        // }
+        // if (
+        //   (player.currentHeldItem != null) ||
+        //   player.currentHeldItem != undefined
+        // ) {
+        //   if (player.currentHeldItem.type == "weapon") {
+        //     itemHolder.getObjectByName(player.currentHeldItem.name).position.x =
+        //       window.innerWidth / 140 - 6;
+        //     itemHolder.getObjectByName(player.currentHeldItem.name).position.y =
+        //       -2;
+        //     itemHolder.getObjectByName(player.currentHeldItem.name).position.z =
+        //       -4;
+        //     // itemHolder.position.x
+        //     // console.log(itemHolder.getObject.);
+        //     // itemHolder.getObjectByName(player.currentHeldItem.name).position.x =
+        //     //   yawObject.position.x + window.innerWidth / 140 - 6;
+        //     // itemHolder.getObjectByName(player.currentHeldItem.name).position.y =
+        //     //   yawObject.position.y - 2;
+        //     // itemHolder.getObjectByName(player.currentHeldItem.name).position.z =
+        //     //   yawObject.position.z - 4;
+        //     // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.set(itemHolder.rotation.x, itemHolder.rotation.y, itemHolder.rotation.z);
+        //     // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.x =
+        //     //   itemHolder.rotation.x;
+        //     // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.y = itemHolder.rotation.y;
+        //     // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.z =
+        //     //   itemHolder.rotation.z;
 
-            //   window.innerWidth / 140 - 6;
-            // scene.getObjectByName(player.currentHeldItem.name).position.y = -2;
-            // scene.getObjectByName(player.currentHeldItem.name).position.z = -4;
-            //.position.copy(itemHolder.position);
-          }
-        }
+        //     //   window.innerWidth / 140 - 6;
+        //     // scene.getObjectByName(player.currentHeldItem.name).position.y = -2;
+        //     // scene.getObjectByName(player.currentHeldItem.name).position.z = -4;
+        //     //.position.copy(itemHolder.position);
+        //   }
+        // }
+        // alert(1)
 
         delta = clock.getDelta();
         if (playerCollisionWithWallTop()) {
@@ -1633,7 +1768,6 @@
             floor.position.x + floorWidth / 2 - wallDistOff;
           // velocity.x -= direction.x * currentSpeed * delta;
         }
-
         currentMap.forEach((box) => {
           let geom = new THREE.BoxGeometry(box.scaleX, box.scaleY, box.scaleZ);
           let mat = new THREE.MeshBasicMaterial({ color: box.color });
@@ -1761,9 +1895,11 @@
           o.object.material.color.r = o.r;
           o.object.material.color.g = o.g;
           o.object.material.color.b = o.b;
-
+          if (o.affectedByGravity) {
+            o.object.position.y -= gravity;
+          }
           o.object.position.x += o.velX;
-          o.object.position.y *= gravity;
+          // o.object.position.y *= gravity;
           o.object.position.z += o.velZ;
 
           if (
@@ -1771,6 +1907,7 @@
             0
           ) {
             o.object.position.y = o.object.geometry.parameters.height / 2;
+            o.affectedByGravity = false;
           }
 
           worldObjects.forEach((o2) => {
@@ -1780,12 +1917,21 @@
             let obj2 = o2.object;
 
             if (
-              inBetweenFunc(obj1, obj2) &&
+              obj1.position.x >
+                obj2.position.x - obj2.geometry.parameters.width / 2 &&
+              obj1.position.x <
+                obj2.position.x + obj2.geometry.parameters.width / 2 &&
+              obj1.position.z >
+                obj2.position.z - obj2.geometry.parameters.depth / 2 &&
+              obj1.position.z <
+                obj2.position.z + obj2.geometry.parameters.depth / 2 &&
               obj1.position.y - obj1.geometry.parameters.height / 2 <
                 obj2.position.y + obj2.geometry.parameters.height / 2
+              //&& keyState.g obj1.position.y > obj2.position.y
             ) {
               obj2.position.y =
                 obj1.position.y + obj2.geometry.parameters.height;
+              o2.affectedByGravity = false;
             }
           });
           // console.log(o.object.position.y);
@@ -2159,9 +2305,9 @@
                   inBetweenFunc(o.object, wo.object) &&
                   y - sy / 2 < wy + wsy / 2
                 ) {
-                  o.object.position.y =
-                    wo.object.position.y +
-                    wo.object.geometry.parameters.height / 2;
+                  // o.object.position.y =
+                  //   wo.object.position.y +
+                  //   wo.object.geometry.parameters.height / 2;
                   if (wo.blockLogic && o.object != wo.object) {
                     if (wo.blockLogic.direction) {
                       if (wo.blockLogic.direction == "north") {
@@ -2188,7 +2334,7 @@
                   }
                 } else {
                   // o.velZ *= 0.01;
-                  o.velY = -gravity;
+                  // o.velY = -gravity;
                 }
               }
             });
@@ -2206,8 +2352,8 @@
           //       break;
           //   }
           o.object.position.x += o.velX * delta;
-          o.object.position.y += o.velY * delta * 90; // 90 is gravity or something idk
-          o.object.position.y -= gravity;
+          // o.object.position.y += o.velY * delta * 90; // 90 is gravity or something idk
+          // o.object.position.y -= gravity;
           o.object.position.z += o.velZ * delta;
         });
         // console.log(cameraDistance(camera));
@@ -2280,8 +2426,6 @@
           // canJump = false;
           availableJump = true;
         }
-        if (e.key == "j") {
-        }
       });
 
       document.addEventListener("keyup", (e) => {
@@ -2294,7 +2438,7 @@
         camera,
         MouseMoveSensitivity = 0.002,
         speed = 800.0,
-        jumpHeight = 200.0,
+        jumpHeight = 12,
         height = player.height
       ) {
         var scope = this;
@@ -2579,7 +2723,7 @@
             ).style.backgroundColor = "transparent";
             // instructions.style.display = 'none';
           } else {
-            paused = true;
+            // paused = true;
             controls.enabled = false;
             if (
               document.getElementById("crosshairUI").style.display ==
@@ -2683,7 +2827,120 @@
       // document.getElementsByClassName("keybind")
       // init();
       // animate();
+      function loadPlayer(p) {
+        loader.load("./fonts/font.json", (font) => {
+          const textgeom = new THREE.TextGeometry(player.displayName, {
+            font: font,
+            size: 1,
+            height: 0.1,
+            // curveSegments: 12,
+            // bevelEnabled: true,
+            // bevelThickness: 10,
+            // bevelSize: 8,
+            // bevelOffset: 0,
+            // bevelSegments: 5,
+          });
+          const textmat = new THREE.MeshBasicMaterial({ color: "green" });
+          let text = new THREE.Mesh(textgeom, textmat);
+          THREE.GeometryUtils.center(textgeom);
+          text.position.x = 0;
+          text.position.y = 12;
+          text.position.z = 0;
+
+          text.receiveShadow = true;
+          text.castShadow = true;
+          text.name = "displayName";
+
+          pObject.add(text);
+        });
+
+        playerList.forEach((player) => {
+          if (player.id === p.id) {
+            return;
+          }
+        });
+        let geom = new THREE.BoxBufferGeometry(2, 2, 2);
+        let mat = new THREE.MeshBasicMaterial({
+          color: ["red", "orange", "yellow"][Math.floor(Math.random() * 3)],
+        });
+        yawObject.name = player.id;
+        let pObject = new THREE.Mesh(geom, mat);
+        pObject.name = p.id;
+        pObject.position.y = 40;
+        scene.add(pObject);
+        let pName = p.name;
+        let pId = p.id;
+        let pos = p.position;
+        let newPlayer = {
+          name: pName,
+          id: pId,
+          position: pos,
+        };
+        let obj = new THREE.Object3D();
+        obj.name = "playerData";
+
+        pObject.add(obj);
+
+        playerList.push(newPlayer);
+      }
+
       function init() {
+        const allPlayersRef = firebase.database().ref("players");
+
+        allPlayersRef.on("value", (snapshot) => {
+          let players = {};
+          players = snapshot.val() || {};
+          Object.keys(players).forEach((s) => {
+            if (s !== player.id) {
+              scene.getObjectByName(s).position.x = players[s].position.x;
+              scene.getObjectByName(s).position.y = players[s].position.y;
+              scene.getObjectByName(s).position.z = players[s].position.z;
+            }
+          });
+          // whenever there is a change in the database, this code will run
+        });
+        allPlayersRef.on("child_added", (snapshot) => {
+          // whenever there is a node in the tree, this code will run
+          if (snapshot.val().id === player.id) {
+            console.log("you are here!");
+          } else {
+            loadPlayer(snapshot.val());
+          }
+        });
+        allPlayersRef.on("child_removed", (snapshot) => {
+          scene.remove(scene.getObjectByName(snapshot.val().id));
+        });
+
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            player.id = user.uid;
+            player.ref = firebase.database().ref(`players/${player.id}`);
+
+            player.ref.set({
+              id: player.id,
+              name: player.id,
+              position: {
+                x: player.x,
+                y: player.y,
+                z: player.z,
+              },
+            });
+            player.ref.onDisconnect().remove();
+
+            console.log("signed into server");
+          } else {
+            console.log("logged out of server");
+          }
+        });
+        firebase
+          .auth()
+          .signInAnonymously()
+          .catch((error) => {
+            var errorCode = error.code;
+            var errorMessgae = error.messgae;
+            console.log(errorCode, errorMessgae);
+          });
+
         world = new THREE.Group();
 
         // arrow = new THREE.ArrowHelper(camera.getWorldDirection(new THREE.Vector3()), camera.getWorldPosition(new THREE.Vector3()), 3, 0x000000 );
@@ -2693,6 +2950,7 @@
         let itemHolderRepMat = new THREE.MeshBasicMaterial({ color: "gray" });
         rep = new THREE.Mesh(itemHolderRepGeom, itemHolderRepMat);
         // rep.position.y = 20;
+
         scene.add(rep);
 
         scene.add(floor);
@@ -2778,6 +3036,7 @@
       document.getElementById("crosshairContainer").style.display = "flex";
       document.getElementById("inventory").style.display = "flex";
       canvas.style.display = "inline-block";
+
       init();
       animate();
       document.getElementById("startGame").onclick = () => {
@@ -2951,7 +3210,7 @@
       var Controlers = function () {
         this.MouseMoveSensitivity = 0.002;
         this.speed = 800.0;
-        this.jumpHeight = 50.0;
+        this.jumpHeight = 12;
         this.height = 30.0;
       };
 
@@ -2974,7 +3233,7 @@
       // };
     </script>
 
-    <div class="screen-first" id="screen-first" style="">
+    <div class="screen-first" id="screen-first">
       <div
         id="screen-first-con"
         style="
@@ -3030,7 +3289,7 @@
     <!-- collison and stuff -->
     <!-- <script src="js/Game/game.js"></script> -->
 
-    <script type="module">
+    <!-- <script type="module">
       // Import the functions you need from the SDKs you need
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.7/firebase-app.js";
       // TODO: Add SDKs for Firebase products that you want to use
@@ -3048,6 +3307,6 @@
 
       // Initialize Firebase
       const app = initializeApp(firebaseConfig);
-    </script>
+    </script> -->
   </body>
 </html>

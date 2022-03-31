@@ -166,24 +166,7 @@
 
 //   boxes[box].style.backgroundColor = crosshair.color;
 // }
-// function changeCrosshair() {
-//   boxes.top.style.width = crosshair.width;
 
-//   boxes.top.style.width = crosshair.width + "px";
-//   boxes.bottom.style.width = crosshair.width + "px";
-//   boxes.top.style.height = crosshair.length + "px";
-//   boxes.bottom.style.height = crosshair.length + "px";
-
-//   boxes.left.style.width = crosshair.length + "px";
-//   boxes.right.style.width = crosshair.length + "px";
-//   boxes.left.style.height = crosshair.width + "px";
-//   boxes.right.style.height = crosshair.width + "px";
-
-//   boxes.top.style.top = crosshair.offset + "px";
-//   boxes.left.style.left = crosshair.offset + "px";
-//   boxes.right.style.right = crosshair.offset + "px";
-//   boxes.bottom.style.bottom = crosshair.offset + "px";
-// }
 // changeCrosshair();
 
 // let itemHolder = new THREE.Object3D();
@@ -372,6 +355,24 @@ let boxes = {
   right: document.getElementById("rightBox"),
   bottom: document.getElementById("bottomBox"),
 };
+function changeCrosshair() {
+  boxes.top.style.width = crosshair.width;
+
+  boxes.top.style.width = crosshair.width + "px";
+  boxes.bottom.style.width = crosshair.width + "px";
+  boxes.top.style.height = crosshair.length + "px";
+  boxes.bottom.style.height = crosshair.length + "px";
+
+  boxes.left.style.width = crosshair.length + "px";
+  boxes.right.style.width = crosshair.length + "px";
+  boxes.left.style.height = crosshair.width + "px";
+  boxes.right.style.height = crosshair.width + "px";
+
+  boxes.top.style.top = crosshair.offset + "px";
+  boxes.left.style.left = crosshair.offset + "px";
+  boxes.right.style.right = crosshair.offset + "px";
+  boxes.bottom.style.bottom = crosshair.offset + "px";
+}
 let rep;
 
 let inventorySlots = [
@@ -414,7 +415,7 @@ let inventorySlots = [
     selected: {
       type: "placeable",
       shape: "model",
-      modelName: "./models/box.gltf",
+      modelName: "./models/m4 Supressor.gltf",
       scaleX: 10,
       scaleY: 10,
       scaleZ: 10,
@@ -455,3 +456,8 @@ function inBetweenFunc(obj1, obj2) {
     return false;
   }
 }
+let camera;
+let itemHolder;
+let placeHolder;
+let player;
+let playerList = [];
