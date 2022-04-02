@@ -307,17 +307,17 @@ let scene;
 
 let paused = false;
 let keyState = {
-  w: false,
-  a: false,
-  d: false,
-  s: false,
-  Space: false,
-  Shift: false,
-  Control: false,
+	w: false,
+	a: false,
+	d: false,
+	s: false,
+	Space: false,
+	Shift: false,
+	Control: false,
 };
 
 let gameConsole = {
-  open: false,
+	open: false,
 };
 
 let worldObjects = [];
@@ -344,95 +344,115 @@ let UIState = null;
 let UIs = ["options", "exit"]; // add others later
 
 let crosshair = {
-  length: 10,
-  width: 5,
-  offset: 20,
-  color: ["red", "blue", "cyan"][Math.floor(Math.random() * 3)],
+	length: 10,
+	width: 5,
+	offset: 20,
+	color: ["red", "blue", "cyan"][Math.floor(Math.random() * 3)],
 };
 let boxes = {
-  top: document.getElementById("topBox"),
-  left: document.getElementById("leftBox"),
-  right: document.getElementById("rightBox"),
-  bottom: document.getElementById("bottomBox"),
+	top: document.getElementById("topBox"),
+	left: document.getElementById("leftBox"),
+	right: document.getElementById("rightBox"),
+	bottom: document.getElementById("bottomBox"),
 };
-function changeCrosshair() {
-  boxes.top.style.width = crosshair.width;
 
-  boxes.top.style.width = crosshair.width + "px";
-  boxes.bottom.style.width = crosshair.width + "px";
-  boxes.top.style.height = crosshair.length + "px";
-  boxes.bottom.style.height = crosshair.length + "px";
+function changeCrosshair()
+{
+	boxes.top.style.width = crosshair.width;
 
-  boxes.left.style.width = crosshair.length + "px";
-  boxes.right.style.width = crosshair.length + "px";
-  boxes.left.style.height = crosshair.width + "px";
-  boxes.right.style.height = crosshair.width + "px";
+	boxes.top.style.width = crosshair.width + "px";
+	boxes.bottom.style.width = crosshair.width + "px";
+	boxes.top.style.height = crosshair.length + "px";
+	boxes.bottom.style.height = crosshair.length + "px";
 
-  boxes.top.style.top = crosshair.offset + "px";
-  boxes.left.style.left = crosshair.offset + "px";
-  boxes.right.style.right = crosshair.offset + "px";
-  boxes.bottom.style.bottom = crosshair.offset + "px";
+	boxes.left.style.width = crosshair.length + "px";
+	boxes.right.style.width = crosshair.length + "px";
+	boxes.left.style.height = crosshair.width + "px";
+	boxes.right.style.height = crosshair.width + "px";
+
+	boxes.top.style.top = crosshair.offset + "px";
+	boxes.left.style.left = crosshair.offset + "px";
+	boxes.right.style.right = crosshair.offset + "px";
+	boxes.bottom.style.bottom = crosshair.offset + "px";
 }
 let rep;
 
 let inventorySlots = [
-  {
-    id: 1,
-    selected: {
-      type: "placeable",
-      shape: "box",
-      scaleX: 10,
-      scaleY: 10,
-      scaleZ: 10,
-      blockType: "conveyor",
-      r: 0.39215686274509803,
-      g: 0.7843137254901961,
-      b: 0.39215686274509803,
-      red: 0,
-      green: 255,
-      blue: 0,
-    },
-  },
-  {
-    id: 2,
-    selected: {
-      type: "placeable",
-      shape: "box",
-      scaleX: 1,
-      scaleY: 10,
-      scaleZ: 10,
-      blockType: "conveyor",
-      r: 1,
-      g: 0,
-      b: 0,
-      red: 255,
-      green: 0,
-      blue: 0,
-    },
-  },
-  {
-    id: 3,
-    selected: {
-      type: "placeable",
-      shape: "model",
-      modelName: "./models/m4 Supressor.gltf",
-      scaleX: 10,
-      scaleY: 10,
-      scaleZ: 10,
-      blockType: "box",
-      r: 0,
-      g: 0,
-      b: 0,
-      red: 0,
-      green: 0,
-      blue: 0,
-    },
-  },
-  { id: 4, selected: {} },
-  { id: 5, selected: {} },
-  { id: 6, selected: {} },
-  { id: 7, selected: {} },
-];
+{
+	id: 1,
+	selected:
+	{
+		type: "placeable",
+		shape: "box",
+		scaleX: 10,
+		scaleY: 10,
+		scaleZ: 10,
+		blockType: "conveyor",
+		r: 0.39215686274509803,
+		g: 0.7843137254901961,
+		b: 0.39215686274509803,
+		red: 0,
+		green: 255,
+		blue: 0,
+	},
+},
+{
+	id: 2,
+	selected:
+	{
+		type: "placeable",
+		shape: "box",
+		scaleX: 1,
+		scaleY: 10,
+		scaleZ: 10,
+		blockType: "conveyor",
+		r: 1,
+		g: 0,
+		b: 0,
+		red: 255,
+		green: 0,
+		blue: 0,
+	},
+},
+{
+	id: 3,
+	selected:
+	{
+		type: "placeable",
+		shape: "model",
+		modelName: "./models/m4 Supressor.gltf",
+		scaleX: 10,
+		scaleY: 10,
+		scaleZ: 10,
+		blockType: "box",
+		r: 0,
+		g: 0,
+		b: 0,
+		red: 0,
+		green: 0,
+		blue: 0,
+	},
+},
+{
+	id: 4,
+	selected:
+	{}
+},
+{
+	id: 5,
+	selected:
+	{}
+},
+{
+	id: 6,
+	selected:
+	{}
+},
+{
+	id: 7,
+	selected:
+	{}
+}, ];
 
 let selectedSlot = inventorySlots[0];
 let mouseDown = false;
@@ -444,17 +464,22 @@ var prevTime = performance.now();
 var time = performance.now();
 var delta = (time - prevTime) / 1000;
 let gravity = 6.8 * 100.0 * delta + 1;
-function inBetweenFunc(obj1, obj2) {
-  if (
-    obj1.position.x > obj2.position.x - obj2.geometry.parameters.width / 2 &&
-    obj1.position.x < obj2.position.x + obj2.geometry.parameters.width / 2 &&
-    obj1.position.z > obj2.position.z - obj2.geometry.parameters.depth / 2 &&
-    obj1.position.z < obj2.position.z + obj2.geometry.parameters.depth / 2
-  ) {
-    return true;
-  } else {
-    return false;
-  }
+
+function inBetweenFunc(obj1, obj2)
+{
+	if (
+		obj1.position.x > obj2.position.x - obj2.geometry.parameters.width / 2 &&
+		obj1.position.x < obj2.position.x + obj2.geometry.parameters.width / 2 &&
+		obj1.position.z > obj2.position.z - obj2.geometry.parameters.depth / 2 &&
+		obj1.position.z < obj2.position.z + obj2.geometry.parameters.depth / 2
+	)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 let yawObject;
 let pitchObject;
@@ -468,209 +493,248 @@ let clock;
 
 let floor;
 
-function playerCollisionWithWallTop() {
-  let floorX = floor.position.x - floorWidth / 2;
-  let floorZ = floor.position.z - floorHeight / 2;
-  let x = yawObject.position.x;
-  let z = yawObject.position.z;
+function playerCollisionWithWallTop()
+{
+	let floorX = floor.position.x - floorWidth / 2;
+	let floorZ = floor.position.z - floorHeight / 2;
+	let x = yawObject.position.x;
+	let z = yawObject.position.z;
 
-  if (z < floorZ + wallDistOff) {
-    return true;
-  } else {
-    return false;
-  }
-}
-function playerCollisionWithWallBottom() {
-  let floorX = floor.position.x - floorWidth / 2;
-  let floorZ = floor.position.z - floorHeight / 2;
-  let x = yawObject.position.x;
-  let z = yawObject.position.z;
-
-  if (z > floorZ + floorHeight - wallDistOff) {
-    return true;
-  } else {
-    return false;
-  }
-}
-function playerCollisionWithWallLeft() {
-  let floorX = floor.position.x - floorWidth / 2;
-  let floorZ = floor.position.z - floorHeight / 2;
-  let x = yawObject.position.x;
-  let z = yawObject.position.z;
-
-  if (x < floorX + wallDistOff) {
-    return true;
-  } else {
-    return false;
-  }
+	if (z < floorZ + wallDistOff)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
-function playerCollisionWithWallRight() {
-  let floorX = floor.position.x - floorWidth / 2;
-  let floorZ = floor.position.z - floorHeight / 2;
-  let x = yawObject.position.x;
-  let z = yawObject.position.z;
+function playerCollisionWithWallBottom()
+{
+	let floorX = floor.position.x - floorWidth / 2;
+	let floorZ = floor.position.z - floorHeight / 2;
+	let x = yawObject.position.x;
+	let z = yawObject.position.z;
 
-  if (x > floorX + floorWidth - wallDistOff) {
-    return true;
-  } else {
-    return false;
-  }
+	if (z > floorZ + floorHeight - wallDistOff)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+function playerCollisionWithWallLeft()
+{
+	let floorX = floor.position.x - floorWidth / 2;
+	let floorZ = floor.position.z - floorHeight / 2;
+	let x = yawObject.position.x;
+	let z = yawObject.position.z;
+
+	if (x < floorX + wallDistOff)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+function playerCollisionWithWallRight()
+{
+	let floorX = floor.position.x - floorWidth / 2;
+	let floorZ = floor.position.z - floorHeight / 2;
+	let x = yawObject.position.x;
+	let z = yawObject.position.z;
+
+	if (x > floorX + floorWidth - wallDistOff)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 let currentMap;
 
-function collidingWithRect(mesh) {
-  let playerX = yawObject.position.x;
-  let playerY = yawObject.position.y - 30;
-  let playerZ = yawObject.position.z;
-  let geom = new THREE.BoxGeometry(mesh.scaleX, mesh.scaleY, mesh.scaleZ);
-  let mat = new THREE.MeshBasicMaterial({ color: mesh.color });
-  let m = new THREE.Mesh(geom, mat);
-  m.name = "block";
-  m.position.x = mesh.x;
-  m.position.y = mesh.y;
-  m.position.z = mesh.z;
-  let x = floor.position.x - floorWidth / 2 + mesh.x + mesh.scaleX / 2;
-  let y = m.position.y;
-  let z = (m.position.z =
-    floor.position.z - floorHeight / 2 + mesh.z + mesh.scaleZ / 2);
-  let s = false;
+function collidingWithRect(mesh)
+{
+	let playerX = yawObject.position.x;
+	let playerY = yawObject.position.y - 30;
+	let playerZ = yawObject.position.z;
+	let geom = new THREE.BoxGeometry(mesh.scaleX, mesh.scaleY, mesh.scaleZ);
+	let mat = new THREE.MeshBasicMaterial(
+	{
+		color: mesh.color
+	});
+	let m = new THREE.Mesh(geom, mat);
+	m.name = "block";
+	m.position.x = mesh.x;
+	m.position.y = mesh.y;
+	m.position.z = mesh.z;
+	let x = floor.position.x - floorWidth / 2 + mesh.x + mesh.scaleX / 2;
+	let y = m.position.y;
+	let z = (m.position.z =
+		floor.position.z - floorHeight / 2 + mesh.z + mesh.scaleZ / 2);
+	let s = false;
 
-  if (playerY < mesh.y) {
-    s = false;
-  } else {
-    s = true;
-  }
-  if (
-    playerY - player.height / 2 > mesh.y - mesh.scaleY &&
-    playerY - player.height / 2 < mesh.y &&
-    playerX < x + mesh.scaleX / 2 &&
-    playerX > x - mesh.scaleX / 2 &&
-    playerZ < z + mesh.scaleZ / 2 &&
-    playerZ > z - mesh.scaleZ / 2 &&
-    !(prevPlayerY > yawObject.position.y)
-  ) {
-    // if (!ontop) {
-    //   beneath = true;
-    // }
-    velocity.y = -velocity.y;
-    // alert(yawObject.position.y + " " + mesh.y + " " + prevPlayerY);
-    yawObject.position.y += y - yawObject.position.y - 3;
-  }
-  if (
-    playerY > y - mesh.scaleY / 2 &&
-    playerY < y + mesh.scaleY &&
-    // playerY + player.height < y - mesh.scaleY &&
-    playerX - wallDistOff + 3 < x + mesh.scaleX / 2 &&
-    playerX + wallDistOff - 3 > x - mesh.scaleX / 2 &&
-    playerZ - wallDistOff + 3 < z + mesh.scaleZ / 2 &&
-    playerZ + wallDistOff - 3 > z - mesh.scaleZ / 2
-  ) {
-    velocity.y = 0;
-    s = false;
-    ontop = true;
-    return "ontop";
-  }
+	if (playerY < mesh.y)
+	{
+		s = false;
+	}
+	else
+	{
+		s = true;
+	}
+	if (
+		playerY - player.height / 2 > mesh.y - mesh.scaleY &&
+		playerY - player.height / 2 < mesh.y &&
+		playerX < x + mesh.scaleX / 2 &&
+		playerX > x - mesh.scaleX / 2 &&
+		playerZ < z + mesh.scaleZ / 2 &&
+		playerZ > z - mesh.scaleZ / 2 &&
+		!(prevPlayerY > yawObject.position.y)
+	)
+	{
+		// if (!ontop) {
+		//   beneath = true;
+		// }
+		velocity.y = -velocity.y;
+		// alert(yawObject.position.y + " " + mesh.y + " " + prevPlayerY);
+		yawObject.position.y += y - yawObject.position.y - 3;
+	}
+	if (
+		playerY > y - mesh.scaleY / 2 &&
+		playerY < y + mesh.scaleY &&
+		// playerY + player.height < y - mesh.scaleY &&
+		playerX - wallDistOff + 3 < x + mesh.scaleX / 2 &&
+		playerX + wallDistOff - 3 > x - mesh.scaleX / 2 &&
+		playerZ - wallDistOff + 3 < z + mesh.scaleZ / 2 &&
+		playerZ + wallDistOff - 3 > z - mesh.scaleZ / 2
+	)
+	{
+		velocity.y = 0;
+		s = false;
+		ontop = true;
+		return "ontop";
+	}
 
-  if (
-    playerX > x - mesh.scaleX / 2 - wallDistOff &&
-    playerX < x - mesh.scaleX / 2 + wallDistOff &&
-    playerZ < z + mesh.scaleZ / 2 &&
-    playerZ > z - mesh.scaleZ / 2 &&
-    playerY < y + mesh.scaleY &&
-    s
-    // !(playerY > y + mesh.scaleY)
-  )
-    return "right";
-  if (
-    playerX < x + mesh.scaleX / 2 + wallDistOff &&
-    playerX > x + mesh.scaleX / 2 - wallDistOff &&
-    playerZ < z + mesh.scaleZ / 2 &&
-    playerZ > z - mesh.scaleZ / 2 &&
-    playerY < y + mesh.scaleY &&
-    s
-    // !(playerY > y + mesh.scaleY)
-  ) {
-    return "left";
-  }
+	if (
+		playerX > x - mesh.scaleX / 2 - wallDistOff &&
+		playerX < x - mesh.scaleX / 2 + wallDistOff &&
+		playerZ < z + mesh.scaleZ / 2 &&
+		playerZ > z - mesh.scaleZ / 2 &&
+		playerY < y + mesh.scaleY &&
+		s
+		// !(playerY > y + mesh.scaleY)
+	)
+		return "right";
+	if (
+		playerX < x + mesh.scaleX / 2 + wallDistOff &&
+		playerX > x + mesh.scaleX / 2 - wallDistOff &&
+		playerZ < z + mesh.scaleZ / 2 &&
+		playerZ > z - mesh.scaleZ / 2 &&
+		playerY < y + mesh.scaleY &&
+		s
+		// !(playerY > y + mesh.scaleY)
+	)
+	{
+		return "left";
+	}
 
-  if (
-    playerZ < z + mesh.scaleZ / 2 &&
-    playerZ > z - mesh.scaleZ / 2 - wallDistOff &&
-    playerX > x - mesh.scaleX / 2 &&
-    playerX < x + mesh.scaleX / 2 &&
-    playerY < y + mesh.scaleY &&
-    s
-    // !(playerY > y + mesh.scaleY)
-  ) {
-    return "top";
-  }
-  if (
-    playerZ > z - mesh.scaleZ / 2 - wallDistOff &&
-    playerZ < z + mesh.scaleZ / 2 + wallDistOff &&
-    playerX > x - mesh.scaleX / 2 &&
-    playerX < x + mesh.scaleX / 2 &&
-    playerY < y + mesh.scaleY &&
-    s
-  ) {
-    return "bottom";
-  }
+	if (
+		playerZ < z + mesh.scaleZ / 2 &&
+		playerZ > z - mesh.scaleZ / 2 - wallDistOff &&
+		playerX > x - mesh.scaleX / 2 &&
+		playerX < x + mesh.scaleX / 2 &&
+		playerY < y + mesh.scaleY &&
+		s
+		// !(playerY > y + mesh.scaleY)
+	)
+	{
+		return "top";
+	}
+	if (
+		playerZ > z - mesh.scaleZ / 2 - wallDistOff &&
+		playerZ < z + mesh.scaleZ / 2 + wallDistOff &&
+		playerX > x - mesh.scaleX / 2 &&
+		playerX < x + mesh.scaleX / 2 &&
+		playerY < y + mesh.scaleY &&
+		s
+	)
+	{
+		return "bottom";
+	}
 }
-function cameraDistance(camera) {
-  raycaster.setFromCamera(pointer, camera);
-  const intersects = raycaster.intersectObjects(scene.children);
 
-  // scene.children.forEach((c) => {
-  //   if (c.type == "Group" && c.name == "Scene") {
-  //     console.log(c);
-  //   }
-  // });
+function cameraDistance(camera)
+{
+	raycaster.setFromCamera(pointer, camera);
+	const intersects = raycaster.intersectObjects(scene.children);
 
-  if (intersects[0] == undefined) {
-    return {
-      distance: 0,
-      point: {
-        x: 0,
-        y: 0,
-        z: 0,
-      },
-      object: {
-        type: "null",
-        name: "null",
-        position: {
-          x: 0,
-          y: 0,
-          z: 0,
-        },
-        geometry: {
-          parameters: {
-            width: 0,
-            height: 0,
-            depth: 0,
-          },
-        },
-      },
-    };
-  }
-  for (let i = 0; i < intersects.length; i++) {
-    let names = intersects[0].object.name.split(",");
-    // names.forEach((name) => {
-    //   if (name == "floor") {
-    //     // console.log(intersects[0].point.x, intersects[0].point.z);
-    //     return {
-    //       dist: intersects[0].distance,
-    //       x: intersects[0].point.x,
-    //       y: intersects[0].point.y,
-    //       z: intersects[0].point.z,
-    //     };
-    //   } else if (name == "conveyor") {
-    //     console.log('asdadasd');
-    //   }
-    // });
-    // console.log(intersects[0].object.type);
-    return intersects[0];
-  }
+	// scene.children.forEach((c) => {
+	//   if (c.type == "Group" && c.name == "Scene") {
+	//     console.log(c);
+	//   }
+	// });
+
+	if (intersects[0] == undefined)
+	{
+		return {
+			distance: 0,
+			point:
+			{
+				x: 0,
+				y: 0,
+				z: 0,
+			},
+			object:
+			{
+				type: "null",
+				name: "null",
+				position:
+				{
+					x: 0,
+					y: 0,
+					z: 0,
+				},
+				geometry:
+				{
+					parameters:
+					{
+						width: 0,
+						height: 0,
+						depth: 0,
+					},
+				},
+			},
+		};
+	}
+	for (let i = 0; i < intersects.length; i++)
+	{
+		let names = intersects[0].object.name.split(",");
+		// names.forEach((name) => {
+		//   if (name == "floor") {
+		//     // console.log(intersects[0].point.x, intersects[0].point.z);
+		//     return {
+		//       dist: intersects[0].distance,
+		//       x: intersects[0].point.x,
+		//       y: intersects[0].point.y,
+		//       z: intersects[0].point.z,
+		//     };
+		//   } else if (name == "conveyor") {
+		//     console.log('asdadasd');
+		//   }
+		// });
+		// console.log(intersects[0].object.type);
+		return intersects[0];
+	}
 }
 let raycaster;
 let pointer;
@@ -679,44 +743,69 @@ let velocity;
 let direction;
 
 let signedIn = false;
-let account = {
-  username: "",
-  email: "",
-  password: "",
+let xzqw72mdia = {
+	auwidm: "",
+	alsiwfn: "",
+	aos: "",
+	au: "",
+	aa: "",
 }
-function login() {
-  let g = new firebase.auth.GoogleAuthProvider();
-  firebase
-    .auth()
-    .signInWithPopup(g)
-    .then((result) => {
-      /** @type {firebase.auth.OAuthCredential} */
-      var credential = result.credential;
+function bsdWjsd() {
+  let acc = JSON.parse(localStorage.getItem(btoa(btoa("userAccount"))));
+  if (acc) {
+    signedIn = true;
+    document.getElementById("SignInBtn").style.display = "none";
+    document.getElementById("username").style.display = "inline-block";
+    document.getElementById("photo").style.display = "inline-block";
+    document.getElementById("photoImg").src = atob(acc.aos);
+    document.getElementById("username").textContent = atob(acc.auwidm);
+    xzqw72mdia.auwidm = btoa(btoa(acc.auwidm.split(" ").join("")));
+    xzqw72mdia.alsiwfn = btoa(acc.alsiwfn);
 
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      var token = credential.accessToken;
-      // The signed-in user info.
-      var user = result.user;
-      console.log(user);
-      account.username = user.displayName;
-      account.email = user.email;
-      account.photoURL = user.photoURL;
-      signedIn = true;
-      return user;
-      // ...
-    })
-    .catch((error) => {
-      // Handle Errors here.
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      // The email of the user's account used.
-      var email = error.email;
-      // The firebase.auth.AuthCredential type that was used.
-      var credential = error.credential;
-      console.log("Error", errorCode, errorMessage);
+  }
+}
 
-      // ...
-      return "Error", errorCode, errorMessage;
+function login()
+{
+	let g = new firebase.auth.GoogleAuthProvider();
+	firebase
+		.auth()
+		.signInWithPopup(g)
+		.then((result) =>
+		{
+			/** @type {firebase.auth.OAuthCredential} */
+			var credential = result.credential;
+
+			// This gives you a Google Access Token. You can use it to access the Google API.
+			var token = credential.accessToken;
+			// The signed-in user info.
+			var user = result.user;
+			console.log(user);
+			xzqw72mdia.auwidm = btoa(user.displayName);
+			xzqw72mdia.alsiwfn = btoa(user.email);
+			xzqw72mdia.aos = btoa(user.photoURL);
+			signedIn = true;
+			xzqw72mdia.aa = btoa(btoa('userAccount'));
+      localStorage.setItem(xzqw72mdia.aa, JSON.stringify(xzqw72mdia));
+      
+			return user;
+			// ...
+		})
+		.catch((error) =>
+		{
+			// Handle Errors here.
+			var errorCode = error.code;
+			var errorMessage = error.message;
+			// The email of the user's account used.
+			var email = error.email;
+			// The firebase.auth.AuthCredential type that was used.
+			var credential = error.credential;
+			console.log("Error", errorCode, errorMessage);
+
+			// ...
+			return "Error", errorCode, errorMessage;
     });
-    
 }
+let username = "auwidm";
+let email = "alsiwfn";
+let photoURL = "aos";

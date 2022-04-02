@@ -553,6 +553,12 @@
         r439gqadfabdfayb: "",
         name: "",
         displayName: "",
+        unfocused: true,
+        unfocusedPos: {
+          x: 10,
+          y: 10,
+          z: -50,
+        },
         // displayName: [
         //   "GOD",
         //   "Peasent",
@@ -605,11 +611,6 @@
         x: 10,
         y: 10,
         z: -50,
-        unfocusedPos: {
-          x: 0,
-          y: 0,
-          z: 0,
-        },
         crouching: false,
         crouchHeight: 10,
         height: 30,
@@ -2505,6 +2506,12 @@
             // document.webkitPointerLockElement === element2
           ) {
             paused = false;
+            player.unfocused = false;
+            // yawObject.position.set(
+            //   player.unfocusedPos.x,
+            //   player.unfocusedPos.y,
+            //   player.unfocusedPos.z
+            // );
             controls.enabled = true;
             document.getElementById("crosshairContainer").style.left = "0";
             document.getElementById(
@@ -2513,6 +2520,15 @@
             // instructions.style.display = 'none';
           } else {
             paused = true;
+            player.unfocused = true;
+            // player.unfocusedPos = {
+            //   x: player.x,
+            //   y: player.y,
+            //   z: player.z
+            // }
+            // setInterval(()=> {
+            //   console.log(player.x, player.y, player.z);
+            // }, 10)
             controls.enabled = false;
             if (
               document.getElementById("crosshairUI").style.display ==
@@ -2699,7 +2715,8 @@
 
         playerList.push(newPlayer);
       }
-
+      
+      bsdWjsd();
       function init() {
         const allPlayersRef = firebase.database().ref("players");
         loadGLTF("./models/end_table.gltf", 30, 0, -30, 0.2, 0.1, 0.1, "test");
@@ -2786,7 +2803,6 @@
           // whenever there is a node in the tree, this code will run
           if (snapshot.val().id === player.id) {
           } else {
-            console.log(snapshot.val().id);
             loadPlayer(snapshot.val());
           }
         });
@@ -2805,34 +2821,24 @@
             let accounts = {};
             accounts = s.val() || {};
             console.log(s.val(), accounts);
-            if(s.val()[account.username]) {
-              
-
-
-
-
-
-
-
-              
-            }
+            // if (s.val()[account.username]) {
+            //   document.cookie = "asdasd, asdasd";
+            // }
           });
           if (user) {
             player.id = user.uid;
             player.ref = firebase.database().ref(`players/${player.id}`);
-            if (account.username) {
-              player.r439gqadfabdfayb = firebase
-                .database()
-                .ref(`acnts/${account.username}`);
+
+            // if(xzqw72mdia.auwidm == "")
+            //   return;
+            player.r439gqadfabdfayb = firebase
+              .database()
+              .ref(`acnts/${xzqw72mdia.auwidm}`);
               player.r439gqadfabdfayb.set({
-                username: account.username,
-                username: account.username,
-                email: account.email,
-                saveData: {
-                  dat1: 1,
-                },
-              });
-            }
+              username: xzqw72mdia.auwidm,
+              email: xzqw72mdia.alsiwfn
+            });
+
             player.ref.set({
               id: player.id,
               name: player.id,

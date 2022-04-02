@@ -1,17 +1,18 @@
 function loop() {
   if (!signedIn) {
     document.getElementById("SignInBtn").style.display = "inline-block";
-    
+
     document.getElementById("username").style.display = "none";
     document.getElementById("photo").style.display = "none";
   } else if (signedIn) {
-    document.getElementById("SignInBtn").style.display = "none";
-    document.getElementById("username").style.display = "inline-block";
-    document.getElementById("photo").style.display = "inline-block";
-    document.getElementById("photoImg").src = account.photoURL;
-    document.getElementById("username").textContent = account.username;
+    bsdWjsd();
+    // document.getElementById("SignInBtn").style.display = "none";
+    // document.getElementById("username").style.display = "inline-block";
+    // document.getElementById("photo").style.display = "inline-block";
+    // document.getElementById("photoImg").src = account.photoURL;
+    // document.getElementById("username").textContent = account.username;
   }
-    
+
   if (player.ref)
     player.ref.set({
       responding: true,
@@ -40,7 +41,6 @@ function loop() {
   } else {
     document.getElementById("options").style.display = "none";
     document.getElementById("topBar").style.display = "none";
-  
   }
   // if (window.innerWidth < 1280) {
   //   return;
