@@ -255,6 +255,7 @@
     <script src="js/Game/global.js"></script>
     <script src="js/Game/Player/Player.js"></script>
     <script src="js/Game/Objects/Conveyor.js"></script>
+    <script src="js/Game/GameLoop.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -284,17 +285,20 @@
     <script type="module">
       // import * as THREE from "three";
       // import { FBXLoader } from "./jsm/loaders/FBXLoader.js";
-      // import { GLTFLoader } from "./jsm/loaders/GLTFLoader.js";
+      import { GLTFLoader } from "./jsm/loaders/GLTFLoader.js";
       import { FontLoader } from "./jsm/loaders/FontLoader.js";
+
+      // import { GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js";
+
       // Globals
 
-      var velocity = new THREE.Vector3();
-      var direction = new THREE.Vector3();
+      velocity = new THREE.Vector3();
+      direction = new THREE.Vector3();
 
       var prevTime = performance.now();
 
-      var pitchObject = new THREE.Object3D();
-      var yawObject = new THREE.Object3D();
+      pitchObject = new THREE.Object3D();
+      yawObject = new THREE.Object3D();
       yawObject.position.y = 33;
       yawObject.position.z = 90;
       // pitchObject.rotation.x = -70;
@@ -309,7 +313,7 @@
       var floorMaterial = new THREE.MeshLambertMaterial();
       floorMaterial.color.setHSL(0.095, 1, 0.75);
 
-      var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+      floor = new THREE.Mesh(floorGeometry, floorMaterial);
       floor.rotation.x = -Math.PI / 2;
       floor.position.y = -0.5;
       floor.receiveShadow = true;
@@ -392,7 +396,7 @@
       let o = false;
       let loader = new FontLoader();
 
-      // let gltf = new GLTFLoader();
+      let gltf = new GLTFLoader();
       // function getModelBox(modelName) {
 
       //   // let obj = {
@@ -436,14 +440,18 @@
 
       function loadGLTF(name, x, y, z, scaleX, scaleY, scaleZ, n) {
         gltf.load(name, (result) => {
-          result.scene.scale.set(0.5, 0.5, 0.5);
+          result.scene.scale.set(scaleX, scaleY, scaleZ);
           result.scene.position.set(x, y + scaleY / 2, z);
           result.scene.name = n;
+          result.scene.children.forEach((c) => {
+            c.castShadow = true;
+            c.receiveShadow = true;
+          });
           scene.add(result.scene);
           worldObjects.push(result.scene);
         });
       }
-      let currentHeldModel = [];
+      currentHeldModel = [];
 
       function loadModelToPlayer(name, scaleX, scaleY, scaleZ, n) {
         gltf.load(name, (result) => {
@@ -477,7 +485,7 @@
         1,
         1000
       );
-      let raycaster = new THREE.Raycaster(
+      raycaster = new THREE.Raycaster(
         camera.getWorldPosition(new THREE.Vector3()),
         camera.getWorldDirection(new THREE.Vector3())
       );
@@ -542,47 +550,49 @@
         // server
         id: "",
         ref: "",
+        r439gqadfabdfayb: "",
         name: "",
-        displayName: [
-          "GOD",
-          "Peasent",
-          "Knight",
-          "Wizard",
-          "Mage",
-          "Warrior",
-          "Rogue",
-          "Assassin",
-          "Bard",
-          "Monk",
-          "Necromancer",
-          "Paladin",
-          "Ranger",
-          "Sorcerer",
-          "Warlock",
-          "Witch",
-          "Druid",
-          "Berserker",
-          "Cleric",
-          "Shaman",
-          "Thief",
-          "Ninja",
-          "Samurai",
-          "Monk",
-          "Necromancer",
-          "Paladin",
-          "Ranger",
-          "Sorcerer",
-          "Warlock",
-          "Witch",
-          "Druid",
-          "Berserker",
-          "Cleric",
-          "Shaman",
-          "Thief",
-          "Ninja",
-          "Samurai",
-        ][Math.floor(Math.random() * 50)],
-        //weapon
+        displayName: "",
+        // displayName: [
+        //   "GOD",
+        //   "Peasent",
+        //   "Knight",
+        //   "Wizard",
+        //   "Mage",
+        //   "Warrior",
+        //   "Rogue",
+        //   "Assassin",
+        //   "Bard",
+        //   "Monk",
+        //   "Necromancer",
+        //   "Paladin",
+        //   "Ranger",
+        //   "Sorcerer",
+        //   "Warlock",
+        //   "Witch",
+        //   "Druid",
+        //   "Berserker",
+        //   "Cleric",
+        //   "Shaman",
+        //   "Thief",
+        //   "Ninja",
+        //   "Samurai",
+        //   "Monk",
+        //   "Necromancer",
+        //   "Paladin",
+        //   "Ranger",
+        //   "Sorcerer",
+        //   "Warlock",
+        //   "Witch",
+        //   "Druid",
+        //   "Berserker",
+        //   "Cleric",
+        //   "Shaman",
+        //   "Thief",
+        //   "Ninja",
+        //   "Samurai",
+        // ][Math.floor(Math.random() * 36)],
+        // //weapon
         currentHeldItem: {
           type: "weapon",
           name: "M4 Supressor",
@@ -600,6 +610,8 @@
           y: 0,
           z: 0,
         },
+        crouching: false,
+        crouchHeight: 10,
         height: 30,
         jumpHeight: 100,
         placeDistance: 6,
@@ -725,7 +737,7 @@
         }
       }
       // const raycaster = new THREE.Raycaster();
-      const pointer = new THREE.Vector2();
+      pointer = new THREE.Vector2();
 
       function onPointerMove(event) {
         // calculate pointer position in normalized device coordinates
@@ -759,61 +771,6 @@
         return { intersects, list };
       }
 
-      function cameraDistance(camera) {
-        raycaster.setFromCamera(pointer, camera);
-        const intersects = raycaster.intersectObjects(scene.children);
-
-        // scene.children.forEach((c) => {
-        //   if (c.type == "Group" && c.name == "Scene") {
-        //     console.log(c);
-        //   }
-        // });
-
-        if (intersects[0] == undefined) {
-          return {
-            distance: 0,
-            point: {
-              x: 0,
-              y: 0,
-              z: 0,
-            },
-            object: {
-              type: "null",
-              name: "null",
-              position: {
-                x: 0,
-                y: 0,
-                z: 0,
-              },
-              geometry: {
-                parameters: {
-                  width: 0,
-                  height: 0,
-                  depth: 0,
-                },
-              },
-            },
-          };
-        }
-        for (let i = 0; i < intersects.length; i++) {
-          let names = intersects[0].object.name.split(",");
-          // names.forEach((name) => {
-          //   if (name == "floor") {
-          //     // console.log(intersects[0].point.x, intersects[0].point.z);
-          //     return {
-          //       dist: intersects[0].distance,
-          //       x: intersects[0].point.x,
-          //       y: intersects[0].point.y,
-          //       z: intersects[0].point.z,
-          //     };
-          //   } else if (name == "conveyor") {
-          //     console.log('asdadasd');
-          //   }
-          // });
-          // console.log(intersects[0].object.type);
-          return intersects[0];
-        }
-      }
       function getCloser(num, num1, num2) {
         let n1 = num1 - num;
         let n2 = num2 - num;
@@ -1507,857 +1464,683 @@
           color: "red",
         },
       ];
-      let currentMap = map2;
+      currentMap = map2;
 
-      function collidingWithRect(mesh) {
-        let playerX = yawObject.position.x;
-        let playerY = yawObject.position.y - 30;
-        let playerZ = yawObject.position.z;
-        let geom = new THREE.BoxGeometry(mesh.scaleX, mesh.scaleY, mesh.scaleZ);
-        let mat = new THREE.MeshBasicMaterial({ color: mesh.color });
-        let m = new THREE.Mesh(geom, mat);
-        m.name = "block";
-        m.position.x = mesh.x;
-        m.position.y = mesh.y;
-        m.position.z = mesh.z;
-        let x = floor.position.x - floorWidth / 2 + mesh.x + mesh.scaleX / 2;
-        let y = m.position.y;
-        let z = (m.position.z =
-          floor.position.z - floorHeight / 2 + mesh.z + mesh.scaleZ / 2);
-        let s = false;
-
-        if (playerY < mesh.y) {
-          s = false;
-        } else {
-          s = true;
-        }
-        if (
-          playerY - player.height / 2 > mesh.y - mesh.scaleY &&
-          playerY - player.height / 2 < mesh.y &&
-          playerX < x + mesh.scaleX / 2 &&
-          playerX > x - mesh.scaleX / 2 &&
-          playerZ < z + mesh.scaleZ / 2 &&
-          playerZ > z - mesh.scaleZ / 2 &&
-          !(prevPlayerY > yawObject.position.y)
-        ) {
-          // if (!ontop) {
-          //   beneath = true;
-          // }
-          velocity.y = -velocity.y;
-          // alert(yawObject.position.y + " " + mesh.y + " " + prevPlayerY);
-          yawObject.position.y += y - yawObject.position.y - 3;
-        }
-        if (
-          playerY > y - mesh.scaleY / 2 &&
-          playerY < y + mesh.scaleY &&
-          // playerY + player.height < y - mesh.scaleY &&
-          playerX - wallDistOff + 3 < x + mesh.scaleX / 2 &&
-          playerX + wallDistOff - 3 > x - mesh.scaleX / 2 &&
-          playerZ - wallDistOff + 3 < z + mesh.scaleZ / 2 &&
-          playerZ + wallDistOff - 3 > z - mesh.scaleZ / 2
-        ) {
-          velocity.y = 0;
-          s = false;
-          ontop = true;
-          return "ontop";
-        }
-
-        if (
-          playerX > x - mesh.scaleX / 2 - wallDistOff &&
-          playerX < x - mesh.scaleX / 2 + wallDistOff &&
-          playerZ < z + mesh.scaleZ / 2 &&
-          playerZ > z - mesh.scaleZ / 2 &&
-          playerY < y + mesh.scaleY &&
-          s
-          // !(playerY > y + mesh.scaleY)
-        )
-          return "right";
-        if (
-          playerX < x + mesh.scaleX / 2 + wallDistOff &&
-          playerX > x + mesh.scaleX / 2 - wallDistOff &&
-          playerZ < z + mesh.scaleZ / 2 &&
-          playerZ > z - mesh.scaleZ / 2 &&
-          playerY < y + mesh.scaleY &&
-          s
-          // !(playerY > y + mesh.scaleY)
-        ) {
-          return "left";
-        }
-
-        if (
-          playerZ < z + mesh.scaleZ / 2 &&
-          playerZ > z - mesh.scaleZ / 2 - wallDistOff &&
-          playerX > x - mesh.scaleX / 2 &&
-          playerX < x + mesh.scaleX / 2 &&
-          playerY < y + mesh.scaleY &&
-          s
-          // !(playerY > y + mesh.scaleY)
-        ) {
-          return "top";
-        }
-        if (
-          playerZ > z - mesh.scaleZ / 2 - wallDistOff &&
-          playerZ < z + mesh.scaleZ / 2 + wallDistOff &&
-          playerX > x - mesh.scaleX / 2 &&
-          playerX < x + mesh.scaleX / 2 &&
-          playerY < y + mesh.scaleY &&
-          s
-        ) {
-          return "bottom";
-        }
-      }
-
-      function playerCollisionWithWallLeft() {
-        let floorX = floor.position.x - floorWidth / 2;
-        let floorZ = floor.position.z - floorHeight / 2;
-        let x = yawObject.position.x;
-        let z = yawObject.position.z;
-
-        if (x < floorX + wallDistOff) {
-          return true;
-        } else {
-          return false;
-        }
-      }
-
-      function playerCollisionWithWallRight() {
-        let floorX = floor.position.x - floorWidth / 2;
-        let floorZ = floor.position.z - floorHeight / 2;
-        let x = yawObject.position.x;
-        let z = yawObject.position.z;
-
-        if (x > floorX + floorWidth - wallDistOff) {
-          return true;
-        } else {
-          return false;
-        }
-      }
-
-      function playerCollisionWithWallTop() {
-        let floorX = floor.position.x - floorWidth / 2;
-        let floorZ = floor.position.z - floorHeight / 2;
-        let x = yawObject.position.x;
-        let z = yawObject.position.z;
-
-        if (z < floorZ + wallDistOff) {
-          return true;
-        } else {
-          return false;
-        }
-      }
-      function playerCollisionWithWallBottom() {
-        let floorX = floor.position.x - floorWidth / 2;
-        let floorZ = floor.position.z - floorHeight / 2;
-        let x = yawObject.position.x;
-        let z = yawObject.position.z;
-
-        if (z > floorZ + floorHeight - wallDistOff) {
-          return true;
-        } else {
-          return false;
-        }
-      }
-
-      let clock = new THREE.Clock();
-      let delta = 0;
+      clock = new THREE.Clock();
+      delta = 0;
       // ---- Game Loop ----
-      function loop() {
-        scene.children.forEach((c) => {
-          if (c.children.length > 0) {
-            // console.log(c);
-            c.children.forEach((c2) => {
-              if (c2.type == "Object3D") {
-                let name = c2.name.split(",");
-                if (name[0] == "playerData") {
-                  switch (name[0]) {
-                    case "displayName":
-                      player.updateName(name[1]);
-                      break;
-                  }
-                }
-              } else if (c2.name == "displayName") {
-                var newDir = new THREE.Vector3(player.x, player.y, player.z);
-                var pos = new THREE.Vector3();
-                var box = new THREE.Box3().setFromObject(c2);
+      // function loop() {
+      //   if (player.ref)
+      //     player.ref.set({
+      //       responding: true,
+      //       id: player.id,
+      //       name: player.id,
+      //       displayName: player.displayName,
+      //       position: {
+      //         x: player.x,
+      //         y: player.y,
+      //         z: player.z,
+      //       },
+      //     });
+      //   player.x = yawObject.position.x;
+      //   player.y = yawObject.position.y;
+      //   player.z = yawObject.position.z;
 
-                pos.add(newDir);
-                c2.lookAt(pos);
-                c2.geometry.parameters.text = player.displayName;
-                c2.position.y = 2;
-              }
-            });
-          }
-        });
-        if (player.ref)
-          player.ref.set({
-            responding: true,
-            id: player.id,
-            name: player.id,
-            position: {
-              x: player.x,
-              y: player.y,
-              z: player.z,
-            },
-          });
-        player.x = yawObject.position.x;
-        player.y = yawObject.position.y;
-        player.z = yawObject.position.z;
+      //   currentHeldModel.forEach((m) => {
+      //     m.position.x = 0;
+      //     m.position.y = 20;
+      //     m.position.z = 0;
+      //   });
 
-        currentHeldModel.forEach((m) => {
-          m.position.x = 0;
-          m.position.y = 20;
-          m.position.z = 0;
-        });
+      //   if (paused) {
+      //     document.getElementById("options").style.display = "inline-block";
+      //   } else document.getElementById("options").style.display = "none";
+      //   // if (window.innerWidth < 1280) {
+      //   //   return;
+      //   // }
+      //   // if (
+      //   //   (player.currentHeldItem != null) ||
+      //   //   player.currentHeldItem != undefined
+      //   // ) {
+      //   //   if (player.currentHeldItem.type == "weapon") {
+      //   //     itemHolder.getObjectByName(player.currentHeldItem.name).position.x =
+      //   //       window.innerWidth / 140 - 6;
+      //   //     itemHolder.getObjectByName(player.currentHeldItem.name).position.y =
+      //   //       -2;
+      //   //     itemHolder.getObjectByName(player.currentHeldItem.name).position.z =
+      //   //       -4;
+      //   //     // itemHolder.position.x
+      //   //     // console.log(itemHolder.getObject.);
+      //   //     // itemHolder.getObjectByName(player.currentHeldItem.name).position.x =
+      //   //     //   yawObject.position.x + window.innerWidth / 140 - 6;
+      //   //     // itemHolder.getObjectByName(player.currentHeldItem.name).position.y =
+      //   //     //   yawObject.position.y - 2;
+      //   //     // itemHolder.getObjectByName(player.currentHeldItem.name).position.z =
+      //   //     //   yawObject.position.z - 4;
+      //   //     // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.set(itemHolder.rotation.x, itemHolder.rotation.y, itemHolder.rotation.z);
+      //   //     // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.x =
+      //   //     //   itemHolder.rotation.x;
+      //   //     // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.y = itemHolder.rotation.y;
+      //   //     // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.z =
+      //   //     //   itemHolder.rotation.z;
 
-        if (paused) {
-          document.getElementById("options").style.display = "inline-block";
-        } else document.getElementById("options").style.display = "none";
-        // if (window.innerWidth < 1280) {
-        //   return;
-        // }
-        // if (
-        //   (player.currentHeldItem != null) ||
-        //   player.currentHeldItem != undefined
-        // ) {
-        //   if (player.currentHeldItem.type == "weapon") {
-        //     itemHolder.getObjectByName(player.currentHeldItem.name).position.x =
-        //       window.innerWidth / 140 - 6;
-        //     itemHolder.getObjectByName(player.currentHeldItem.name).position.y =
-        //       -2;
-        //     itemHolder.getObjectByName(player.currentHeldItem.name).position.z =
-        //       -4;
-        //     // itemHolder.position.x
-        //     // console.log(itemHolder.getObject.);
-        //     // itemHolder.getObjectByName(player.currentHeldItem.name).position.x =
-        //     //   yawObject.position.x + window.innerWidth / 140 - 6;
-        //     // itemHolder.getObjectByName(player.currentHeldItem.name).position.y =
-        //     //   yawObject.position.y - 2;
-        //     // itemHolder.getObjectByName(player.currentHeldItem.name).position.z =
-        //     //   yawObject.position.z - 4;
-        //     // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.set(itemHolder.rotation.x, itemHolder.rotation.y, itemHolder.rotation.z);
-        //     // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.x =
-        //     //   itemHolder.rotation.x;
-        //     // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.y = itemHolder.rotation.y;
-        //     // itemHolder.getObjectByName(player.currentHeldItem.name).rotation.z =
-        //     //   itemHolder.rotation.z;
+      //   //     //   window.innerWidth / 140 - 6;
+      //   //     // scene.getObjectByName(player.currentHeldItem.name).position.y = -2;
+      //   //     // scene.getObjectByName(player.currentHeldItem.name).position.z = -4;
+      //   //     //.position.copy(itemHolder.position);
+      //   //   }
+      //   // }
+      //   // alert(1)
 
-        //     //   window.innerWidth / 140 - 6;
-        //     // scene.getObjectByName(player.currentHeldItem.name).position.y = -2;
-        //     // scene.getObjectByName(player.currentHeldItem.name).position.z = -4;
-        //     //.position.copy(itemHolder.position);
-        //   }
-        // }
-        // alert(1)
+      //   delta = clock.getDelta();
+      //   if (playerCollisionWithWallTop()) {
+      //     yawObject.position.z =
+      //       floor.position.z - floorHeight / 2 + wallDistOff;
+      //     // velocity.x -= direction.x * currentSpeed * delta;
+      //   } else if (playerCollisionWithWallBottom()) {
+      //     yawObject.position.z =
+      //       floor.position.z + floorHeight / 2 - wallDistOff;
+      //     // velocity.x -= direction.x * currentSpeed * delta;
+      //   }
+      //   if (playerCollisionWithWallLeft()) {
+      //     yawObject.position.x =
+      //       floor.position.x - floorWidth / 2 + wallDistOff;
+      //     // velocity.x -= direction.x * currentSpeed * delta;
+      //   } else if (playerCollisionWithWallRight()) {
+      //     yawObject.position.x =
+      //       floor.position.x + floorWidth / 2 - wallDistOff;
+      //     // velocity.x -= direction.x * currentSpeed * delta;
+      //   }
+      //   currentMap.forEach((box) => {
+      //     let geom = new THREE.BoxGeometry(box.scaleX, box.scaleY, box.scaleZ);
+      //     let mat = new THREE.MeshBasicMaterial({ color: box.color });
+      //     let m = new THREE.Mesh(geom, mat);
+      //     m.position.x =
+      //       floor.position.x - floorWidth / 2 + box.x + box.scaleX / 2;
+      //     m.position.y = box.y + box.scaleY / 2;
+      //     m.position.z =
+      //       floor.position.z - floorHeight / 2 + box.z + box.scaleZ / 2;
+      //     if (collidingWithRect(box) == "ontop") {
+      //       velocity.y = 0;
+      //       canJump = true;
+      //       yawObject.position.y = box.y + box.scaleY + player.height;
+      //       // pitchObject.position.y = box.y + player.height / 2w;
+      //     } else {
+      //       if (collidingWithRect(box) == "right") {
+      //         yawObject.position.x =
+      //           m.position.x - box.scaleX / 2 - wallDistOff;
+      //       }
+      //       if (collidingWithRect(box) == "left") {
+      //         yawObject.position.x =
+      //           m.position.x + box.scaleX / 2 + wallDistOff;
+      //       }
+      //       if (collidingWithRect(box) == "top") {
+      //         yawObject.position.z =
+      //           m.position.z - box.scaleZ / 2 - wallDistOff;
+      //       }
+      //       if (collidingWithRect(box) == "bottom") {
+      //         yawObject.position.z =
+      //           m.position.z + box.scaleZ / 2 + wallDistOff;
+      //       }
+      //     }
+      //   });
+      //   prevPlayerY = yawObject.position.y;
+      //   // ui
 
-        delta = clock.getDelta();
-        if (playerCollisionWithWallTop()) {
-          yawObject.position.z =
-            floor.position.z - floorHeight / 2 + wallDistOff;
-          // velocity.x -= direction.x * currentSpeed * delta;
-        } else if (playerCollisionWithWallBottom()) {
-          yawObject.position.z =
-            floor.position.z + floorHeight / 2 - wallDistOff;
-          // velocity.x -= direction.x * currentSpeed * delta;
-        }
-        if (playerCollisionWithWallLeft()) {
-          yawObject.position.x =
-            floor.position.x - floorWidth / 2 + wallDistOff;
-          // velocity.x -= direction.x * currentSpeed * delta;
-        } else if (playerCollisionWithWallRight()) {
-          yawObject.position.x =
-            floor.position.x + floorWidth / 2 - wallDistOff;
-          // velocity.x -= direction.x * currentSpeed * delta;
-        }
-        currentMap.forEach((box) => {
-          let geom = new THREE.BoxGeometry(box.scaleX, box.scaleY, box.scaleZ);
-          let mat = new THREE.MeshBasicMaterial({ color: box.color });
-          let m = new THREE.Mesh(geom, mat);
-          m.position.x =
-            floor.position.x - floorWidth / 2 + box.x + box.scaleX / 2;
-          m.position.y = box.y + box.scaleY / 2;
-          m.position.z =
-            floor.position.z - floorHeight / 2 + box.z + box.scaleZ / 2;
-          if (collidingWithRect(box) == "ontop") {
-            velocity.y = 0;
-            canJump = true;
-            yawObject.position.y = box.y + box.scaleY + player.height;
-            // pitchObject.position.y = box.y + player.height / 2w;
-          } else {
-            if (collidingWithRect(box) == "right") {
-              yawObject.position.x =
-                m.position.x - box.scaleX / 2 - wallDistOff;
-            }
-            if (collidingWithRect(box) == "left") {
-              yawObject.position.x =
-                m.position.x + box.scaleX / 2 + wallDistOff;
-            }
-            if (collidingWithRect(box) == "top") {
-              yawObject.position.z =
-                m.position.z - box.scaleZ / 2 - wallDistOff;
-            }
-            if (collidingWithRect(box) == "bottom") {
-              yawObject.position.z =
-                m.position.z + box.scaleZ / 2 + wallDistOff;
-            }
-          }
-        });
-        prevPlayerY = yawObject.position.y;
-        // ui
+      //   // combat
+      //   // alert(pitchObject.rotation.x + " " + pitchObject.rotation.y + " " + pitchObject.rotation.z );
+      //   // if (yawObject.rotation.y > .14) {
+      //   //   alert(1);
+      //   // }
+      //   let slots = [];
+      //   let slot1 = document.getElementById("slot1");
+      //   let slot2 = document.getElementById("slot2");
+      //   let slot3 = document.getElementById("slot3");
+      //   let slot4 = document.getElementById("slot4");
+      //   let slot5 = document.getElementById("slot5");
+      //   let slot6 = document.getElementById("slot6");
+      //   let slot7 = document.getElementById("slot7");
 
-        // combat
-        // alert(pitchObject.rotation.x + " " + pitchObject.rotation.y + " " + pitchObject.rotation.z );
-        // if (yawObject.rotation.y > .14) {
-        //   alert(1);
-        // }
-        let slots = [];
-        let slot1 = document.getElementById("slot1");
-        let slot2 = document.getElementById("slot2");
-        let slot3 = document.getElementById("slot3");
-        let slot4 = document.getElementById("slot4");
-        let slot5 = document.getElementById("slot5");
-        let slot6 = document.getElementById("slot6");
-        let slot7 = document.getElementById("slot7");
+      //   slots.push(slot1, slot2, slot3, slot4, slot5, slot6, slot7);
+      //   if (!paused)
+      //     switch (selectedSlot.id) {
+      //       case 1:
+      //         slots.forEach((slot) => {
+      //           slot.classList.remove("selected");
+      //         });
+      //         slot1.classList.add("selected");
 
-        slots.push(slot1, slot2, slot3, slot4, slot5, slot6, slot7);
-        if (!paused)
-          switch (selectedSlot.id) {
-            case 1:
-              slots.forEach((slot) => {
-                slot.classList.remove("selected");
-              });
-              slot1.classList.add("selected");
+      //         // alert(1)
+      //         break;
+      //       case 2:
+      //         slots.forEach((slot) => {
+      //           slot.classList.remove("selected");
+      //         });
+      //         slot2.classList.add("selected");
+      //         // alert(1)
+      //         break;
+      //       case 3:
+      //         slots.forEach((slot) => {
+      //           slot.classList.remove("selected");
+      //         });
+      //         slot3.classList.add("selected");
+      //         // alert(1)
+      //         break;
+      //       case 4:
+      //         slots.forEach((slot) => {
+      //           slot.classList.remove("selected");
+      //         });
+      //         slot4.classList.add("selected");
+      //         // alert(1)
+      //         break;
+      //       case 5:
+      //         slots.forEach((slot) => {
+      //           slot.classList.remove("selected");
+      //         });
+      //         slot5.classList.add("selected");
+      //         // alert(1)
+      //         break;
+      //       case 6:
+      //         slots.forEach((slot) => {
+      //           slot.classList.remove("selected");
+      //         });
+      //         slot6.classList.add("selected");
+      //         // alert(1)
+      //         break;
+      //       case 7:
+      //         slots.forEach((slot) => {
+      //           slot.classList.remove("selected");
+      //         });
+      //         slot7.classList.add("selected");
+      //         // alert(1)
+      //         break;
+      //     }
 
-              // alert(1)
-              break;
-            case 2:
-              slots.forEach((slot) => {
-                slot.classList.remove("selected");
-              });
-              slot2.classList.add("selected");
-              // alert(1)
-              break;
-            case 3:
-              slots.forEach((slot) => {
-                slot.classList.remove("selected");
-              });
-              slot3.classList.add("selected");
-              // alert(1)
-              break;
-            case 4:
-              slots.forEach((slot) => {
-                slot.classList.remove("selected");
-              });
-              slot4.classList.add("selected");
-              // alert(1)
-              break;
-            case 5:
-              slots.forEach((slot) => {
-                slot.classList.remove("selected");
-              });
-              slot5.classList.add("selected");
-              // alert(1)
-              break;
-            case 6:
-              slots.forEach((slot) => {
-                slot.classList.remove("selected");
-              });
-              slot6.classList.add("selected");
-              // alert(1)
-              break;
-            case 7:
-              slots.forEach((slot) => {
-                slot.classList.remove("selected");
-              });
-              slot7.classList.add("selected");
-              // alert(1)
-              break;
-          }
+      //   bullets.forEach((bullet) => {
+      //     // bullet.b.position.copy(yawObject.getWorldPosition(distance));
+      //     // bullet.b.quaternion.copy(camera.quaternion);
+      //     // bullet.b.position.add(distance.multiplyScalar(10));
+      //     bullet.b.translateZ(-100 * delta);
+      //     // console.log(camera.getWorldPosition(distance));
+      //   });
+      //   itemHolder.position.x = yawObject.position.x;
+      //   itemHolder.position.z = yawObject.position.z;
+      //   itemHolder.position.y = yawObject.position.y;
 
-        bullets.forEach((bullet) => {
-          // bullet.b.position.copy(yawObject.getWorldPosition(distance));
-          // bullet.b.quaternion.copy(camera.quaternion);
-          // bullet.b.position.add(distance.multiplyScalar(10));
-          bullet.b.translateZ(-100 * delta);
-          // console.log(camera.getWorldPosition(distance));
-        });
-        itemHolder.position.x = yawObject.position.x;
-        itemHolder.position.z = yawObject.position.z;
-        itemHolder.position.y = yawObject.position.y;
+      //   if (gameConsole.open) {
+      //     document.getElementById("console").style.display = "inline-block";
+      //   } else {
+      //     document.getElementById("console").style.display = "none";
+      //   }
 
-        if (gameConsole.open) {
-          document.getElementById("console").style.display = "inline-block";
-        } else {
-          document.getElementById("console").style.display = "none";
-        }
+      //   worldObjects.forEach((o) => {
+      //     if (o.type == "Group") return;
+      //     o.object.material.color.r = o.r;
+      //     o.object.material.color.g = o.g;
+      //     o.object.material.color.b = o.b;
+      //     if (o.affectedByGravity) {
+      //       o.object.position.y -= gravity;
+      //     }
+      //     o.object.position.x += o.velX;
+      //     // o.object.position.y *= gravity;
+      //     o.object.position.z += o.velZ;
 
-        worldObjects.forEach((o) => {
-          if (o.type == "Group") return;
-          o.object.material.color.r = o.r;
-          o.object.material.color.g = o.g;
-          o.object.material.color.b = o.b;
-          if (o.affectedByGravity) {
-            o.object.position.y -= gravity;
-          }
-          o.object.position.x += o.velX;
-          // o.object.position.y *= gravity;
-          o.object.position.z += o.velZ;
+      //     if (
+      //       o.object.position.y - o.object.geometry.parameters.height / 2 <
+      //       0
+      //     ) {
+      //       o.object.position.y = o.object.geometry.parameters.height / 2;
+      //       o.affectedByGravity = false;
+      //     }
 
-          if (
-            o.object.position.y - o.object.geometry.parameters.height / 2 <
-            0
-          ) {
-            o.object.position.y = o.object.geometry.parameters.height / 2;
-            o.affectedByGravity = false;
-          }
+      //     worldObjects.forEach((o2) => {
+      //       if (o2.type == "Group") return;
+      //       if (o == o2 || o.type == "material") return;
+      //       let obj1 = o.object;
+      //       let obj2 = o2.object;
 
-          worldObjects.forEach((o2) => {
-            if (o2.type == "Group") return;
-            if (o == o2 || o.type == "material") return;
-            let obj1 = o.object;
-            let obj2 = o2.object;
+      //       if (
+      //         obj1.position.x >
+      //           obj2.position.x - obj2.geometry.parameters.width / 2 &&
+      //         obj1.position.x <
+      //           obj2.position.x + obj2.geometry.parameters.width / 2 &&
+      //         obj1.position.z >
+      //           obj2.position.z - obj2.geometry.parameters.depth / 2 &&
+      //         obj1.position.z <
+      //           obj2.position.z + obj2.geometry.parameters.depth / 2 &&
+      //         obj1.position.y - obj1.geometry.parameters.height / 2 <
+      //           obj2.position.y + obj2.geometry.parameters.height / 2
+      //         //&& keyState.g obj1.position.y > obj2.position.y
+      //       ) {
+      //         obj2.position.y =
+      //           obj1.position.y + obj2.geometry.parameters.height;
+      //         o2.affectedByGravity = false;
+      //       }
+      //     });
+      //     // console.log(o.object.position.y);
+      //     // scene.children.forEach((child) => {
+      //     //   if (
+      //     //     child.type != "AmbientLight" &&
+      //     //     child.type != "HemisphereLight" &&
+      //     //     child.type != "SpotLight" &&
+      //     //     child.type != "Object3D" &&
+      //     //     child.type != "GridHelper" &&
+      //     //     child.type != "Gridhelper" &&
+      //     //     child.type != "Group"
+      //     //   ) {
+      //     //     let x = o.object.position.x;
+      //     //     let y = o.object.position.y;
+      //     //     let z = o.object.position.z;
+      //     //     let sx = o.object.geometry.parameters.width;
+      //     //     let sy = o.object.geometry.parameters.height;
+      //     //     let sz = o.object.geometry.parameters.depth;
+      //     //     let wx = child.position.x;
+      //     //     let wy = child.position.y;
+      //     //     let wz = child.position.z;
+      //     //     let wsx = child.geometry.parameters.width;
+      //     //     let wsy = child.geometry.parameters.height;
+      //     //     let wsz = child.geometry.parameters.depth;
 
-            if (
-              obj1.position.x >
-                obj2.position.x - obj2.geometry.parameters.width / 2 &&
-              obj1.position.x <
-                obj2.position.x + obj2.geometry.parameters.width / 2 &&
-              obj1.position.z >
-                obj2.position.z - obj2.geometry.parameters.depth / 2 &&
-              obj1.position.z <
-                obj2.position.z + obj2.geometry.parameters.depth / 2 &&
-              obj1.position.y - obj1.geometry.parameters.height / 2 <
-                obj2.position.y + obj2.geometry.parameters.height / 2
-              //&& keyState.g obj1.position.y > obj2.position.y
-            ) {
-              obj2.position.y =
-                obj1.position.y + obj2.geometry.parameters.height;
-              o2.affectedByGravity = false;
-            }
-          });
-          // console.log(o.object.position.y);
-          // scene.children.forEach((child) => {
-          //   if (
-          //     child.type != "AmbientLight" &&
-          //     child.type != "HemisphereLight" &&
-          //     child.type != "SpotLight" &&
-          //     child.type != "Object3D" &&
-          //     child.type != "GridHelper" &&
-          //     child.type != "Gridhelper" &&
-          //     child.type != "Group"
-          //   ) {
-          //     let x = o.object.position.x;
-          //     let y = o.object.position.y;
-          //     let z = o.object.position.z;
-          //     let sx = o.object.geometry.parameters.width;
-          //     let sy = o.object.geometry.parameters.height;
-          //     let sz = o.object.geometry.parameters.depth;
-          //     let wx = child.position.x;
-          //     let wy = child.position.y;
-          //     let wz = child.position.z;
-          //     let wsx = child.geometry.parameters.width;
-          //     let wsy = child.geometry.parameters.height;
-          //     let wsz = child.geometry.parameters.depth;
+      //     //     if (
+      //     //       child.name.split(",")[0] == "conveyor" &&
+      //     //       child.uuid != o.object.uuid
+      //     //     ) {
+      //     //       if (
+      //     //         o.object.position.y -
+      //     //           o.object.geometry.parameters.height / 2 <
+      //     //           child.position.y &&
+      //     //           z < wz + wsz / 2 &&
+      //     //           z > wz - wsz / 2 &&
+      //     //         x < wx + wsx / 2 &&
+      //     //         x > wx - wsx / 2
+      //     //       ) {
+      //     //         o.object.position.y =
+      //     //           child.position.y + o.object.geometry.parameters.height / 2;
+      //     //       }
+      //     //     }
 
-          //     if (
-          //       child.name.split(",")[0] == "conveyor" &&
-          //       child.uuid != o.object.uuid
-          //     ) {
-          //       if (
-          //         o.object.position.y -
-          //           o.object.geometry.parameters.height / 2 <
-          //           child.position.y &&
-          //           z < wz + wsz / 2 &&
-          //           z > wz - wsz / 2 &&
-          //         x < wx + wsx / 2 &&
-          //         x > wx - wsx / 2
-          //       ) {
-          //         o.object.position.y =
-          //           child.position.y + o.object.geometry.parameters.height / 2;
-          //       }
-          //     }
+      //     //     if (child.name == "floor") {
+      //     //       // if (
+      //     //       //   x < wx + wsx / 2 &&
+      //     //       //   x > wx - wsx / 2 &&
+      //     //       //   z < wz + wsz / 2 &&
+      //     //       //   z > wz - wsz / 2
+      //     //       // ) {
+      //     //       if (
+      //     //         o.object.position.y -
+      //     //           o.object.geometry.parameters.height / 2 <
+      //     //         child.position.y
+      //     //       ) {
+      //     //         o.object.position.y =
+      //     //           child.position.y + o.object.geometry.parameters.height / 2;
+      //     //       }
+      //     //     }
+      //     //     // }
+      //     //   }
+      //     //   // if (
+      //     //   //   child.position &&
+      //     //   //   child.geometry &&
+      //     //   //   child.paramaters &&
+      //     //   //   o.object !== child
+      //     //   // ) {
 
-          //     if (child.name == "floor") {
-          //       // if (
-          //       //   x < wx + wsx / 2 &&
-          //       //   x > wx - wsx / 2 &&
-          //       //   z < wz + wsz / 2 &&
-          //       //   z > wz - wsz / 2
-          //       // ) {
-          //       if (
-          //         o.object.position.y -
-          //           o.object.geometry.parameters.height / 2 <
-          //         child.position.y
-          //       ) {
-          //         o.object.position.y =
-          //           child.position.y + o.object.geometry.parameters.height / 2;
-          //       }
-          //     }
-          //     // }
-          //   }
-          //   // if (
-          //   //   child.position &&
-          //   //   child.geometry &&
-          //   //   child.paramaters &&
-          //   //   o.object !== child
-          //   // ) {
+      //     //   //   // console.log(x, y, z, sx, sy, sz, wx, wy, wz, wsx, wsy, wsz);
 
-          //   //   // console.log(x, y, z, sx, sy, sz, wx, wy, wz, wsx, wsy, wsz);
+      //     //   //   // if (
+      //     //   //   //   o.object.position.y - o.object.geometry.parameters.height / 2 <
+      //     //   //   //   child.position.y + child.geometry.parameters.height
+      //     //   //   // ) {
+      //     //   //   //   // alert(child.geometry.parameters.height)
+      //     //   //   //   alert(child.name);
+      //     //   //   //   o.object.position.y =
+      //     //   //   //     child.position.y + o.object.geometry.parameters.height;
+      //     //   //   // }
+      //     //   // }
+      //     // });
 
-          //   //   // if (
-          //   //   //   o.object.position.y - o.object.geometry.parameters.height / 2 <
-          //   //   //   child.position.y + child.geometry.parameters.height
-          //   //   // ) {
-          //   //   //   // alert(child.geometry.parameters.height)
-          //   //   //   alert(child.name);
-          //   //   //   o.object.position.y =
-          //   //   //     child.position.y + o.object.geometry.parameters.height;
-          //   //   // }
-          //   // }
-          // });
+      //     if (
+      //       (!o.outlined && cameraDistance(camera) != undefined) ||
+      //       cameraDistance(camera) != null
+      //     ) {
+      //       // o.material.alphaMap = "grey";
 
-          if (
-            (!o.outlined && cameraDistance(camera) != undefined) ||
-            cameraDistance(camera) != null
-          ) {
-            // o.material.alphaMap = "grey";
+      //       // if (!(cameraDistance(camera).object.name == "floor")) {
+      //       if (cameraDistance(camera).object.type != "Mesh") {
+      //         // console.log(
+      //         //   "Player Not Looking at Mesh -> Looking at { " +
+      //         //     cameraDistance(camera).object.type +
+      //         //     " }"
+      //         // );
+      //       }
+      //       // console.log(cameraDistance(camera).object.type);
+      //       let lines = [];
+      //       const material = new THREE.LineBasicMaterial({
+      //         color: 0x0000ff,
+      //       });
+      //       let outerLineOff = -0.1;
 
-            // if (!(cameraDistance(camera).object.name == "floor")) {
-            if (cameraDistance(camera).object.type != "Mesh") {
-              // console.log(
-              //   "Player Not Looking at Mesh -> Looking at { " +
-              //     cameraDistance(camera).object.type +
-              //     " }"
-              // );
-            }
-            // console.log(cameraDistance(camera).object.type);
-            let lines = [];
-            const material = new THREE.LineBasicMaterial({
-              color: 0x0000ff,
-            });
-            let outerLineOff = -0.1;
+      //       const points = [];
+      //       //top
+      //       let boxOutline = [
+      //         new THREE.Vector3(
+      //           o.object.position.x -
+      //             o.object.geometry.parameters.width / 2 -
+      //             outerLineOff,
+      //           o.object.position.y +
+      //             o.object.geometry.parameters.height / 2 +
+      //             outerLineOff,
+      //           o.object.position.z -
+      //             o.object.geometry.parameters.depth / 2 -
+      //             outerLineOff
+      //         ),
 
-            const points = [];
-            //top
-            let boxOutline = [
-              new THREE.Vector3(
-                o.object.position.x -
-                  o.object.geometry.parameters.width / 2 -
-                  outerLineOff,
-                o.object.position.y +
-                  o.object.geometry.parameters.height / 2 +
-                  outerLineOff,
-                o.object.position.z -
-                  o.object.geometry.parameters.depth / 2 -
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x +
+      //             o.object.geometry.parameters.width / 2 +
+      //             outerLineOff,
+      //           o.object.position.y +
+      //             o.object.geometry.parameters.height / 2 +
+      //             outerLineOff,
+      //           o.object.position.z -
+      //             o.object.geometry.parameters.depth / 2 -
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x +
-                  o.object.geometry.parameters.width / 2 +
-                  outerLineOff,
-                o.object.position.y +
-                  o.object.geometry.parameters.height / 2 +
-                  outerLineOff,
-                o.object.position.z -
-                  o.object.geometry.parameters.depth / 2 -
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x +
+      //             o.object.geometry.parameters.width / 2 +
+      //             outerLineOff,
+      //           o.object.position.y +
+      //             o.object.geometry.parameters.height / 2 +
+      //             outerLineOff,
+      //           o.object.position.z +
+      //             o.object.geometry.parameters.depth / 2 +
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x +
-                  o.object.geometry.parameters.width / 2 +
-                  outerLineOff,
-                o.object.position.y +
-                  o.object.geometry.parameters.height / 2 +
-                  outerLineOff,
-                o.object.position.z +
-                  o.object.geometry.parameters.depth / 2 +
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x -
+      //             o.object.geometry.parameters.width / 2 -
+      //             outerLineOff,
+      //           o.object.position.y +
+      //             o.object.geometry.parameters.height / 2 +
+      //             outerLineOff,
+      //           o.object.position.z +
+      //             o.object.geometry.parameters.depth / 2 +
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x -
-                  o.object.geometry.parameters.width / 2 -
-                  outerLineOff,
-                o.object.position.y +
-                  o.object.geometry.parameters.height / 2 +
-                  outerLineOff,
-                o.object.position.z +
-                  o.object.geometry.parameters.depth / 2 +
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x -
+      //             o.object.geometry.parameters.width / 2 -
+      //             outerLineOff,
+      //           o.object.position.y +
+      //             o.object.geometry.parameters.height / 2 +
+      //             outerLineOff,
+      //           o.object.position.z -
+      //             o.object.geometry.parameters.depth / 2 -
+      //             outerLineOff
+      //         ),
+      //         //bottom
 
-              new THREE.Vector3(
-                o.object.position.x -
-                  o.object.geometry.parameters.width / 2 -
-                  outerLineOff,
-                o.object.position.y +
-                  o.object.geometry.parameters.height / 2 +
-                  outerLineOff,
-                o.object.position.z -
-                  o.object.geometry.parameters.depth / 2 -
-                  outerLineOff
-              ),
-              //bottom
+      //         new THREE.Vector3(
+      //           o.object.position.x -
+      //             o.object.geometry.parameters.width / 2 -
+      //             outerLineOff,
+      //           o.object.position.y -
+      //             o.object.geometry.parameters.height / 2 -
+      //             outerLineOff,
+      //           o.object.position.z -
+      //             o.object.geometry.parameters.depth / 2 -
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x -
-                  o.object.geometry.parameters.width / 2 -
-                  outerLineOff,
-                o.object.position.y -
-                  o.object.geometry.parameters.height / 2 -
-                  outerLineOff,
-                o.object.position.z -
-                  o.object.geometry.parameters.depth / 2 -
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x +
+      //             o.object.geometry.parameters.width / 2 +
+      //             outerLineOff,
+      //           o.object.position.y -
+      //             o.object.geometry.parameters.height / 2 -
+      //             outerLineOff,
+      //           o.object.position.z -
+      //             o.object.geometry.parameters.depth / 2 -
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x +
-                  o.object.geometry.parameters.width / 2 +
-                  outerLineOff,
-                o.object.position.y -
-                  o.object.geometry.parameters.height / 2 -
-                  outerLineOff,
-                o.object.position.z -
-                  o.object.geometry.parameters.depth / 2 -
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x +
+      //             o.object.geometry.parameters.width / 2 +
+      //             outerLineOff,
+      //           o.object.position.y -
+      //             o.object.geometry.parameters.height / 2 -
+      //             outerLineOff,
+      //           o.object.position.z +
+      //             o.object.geometry.parameters.depth / 2 +
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x +
-                  o.object.geometry.parameters.width / 2 +
-                  outerLineOff,
-                o.object.position.y -
-                  o.object.geometry.parameters.height / 2 -
-                  outerLineOff,
-                o.object.position.z +
-                  o.object.geometry.parameters.depth / 2 +
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x -
+      //             o.object.geometry.parameters.width / 2 -
+      //             outerLineOff,
+      //           o.object.position.y -
+      //             o.object.geometry.parameters.height / 2 -
+      //             outerLineOff,
+      //           o.object.position.z +
+      //             o.object.geometry.parameters.depth / 2 +
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x -
-                  o.object.geometry.parameters.width / 2 -
-                  outerLineOff,
-                o.object.position.y -
-                  o.object.geometry.parameters.height / 2 -
-                  outerLineOff,
-                o.object.position.z +
-                  o.object.geometry.parameters.depth / 2 +
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x -
+      //             o.object.geometry.parameters.width / 2 -
+      //             outerLineOff,
+      //           o.object.position.y -
+      //             o.object.geometry.parameters.height / 2 -
+      //             outerLineOff,
+      //           o.object.position.z +
+      //             o.object.geometry.parameters.depth / 2 +
+      //             outerLineOff
+      //         ),
+      //         // other vertical lines
 
-              new THREE.Vector3(
-                o.object.position.x -
-                  o.object.geometry.parameters.width / 2 -
-                  outerLineOff,
-                o.object.position.y -
-                  o.object.geometry.parameters.height / 2 -
-                  outerLineOff,
-                o.object.position.z +
-                  o.object.geometry.parameters.depth / 2 +
-                  outerLineOff
-              ),
-              // other vertical lines
+      //         new THREE.Vector3(
+      //           o.object.position.x -
+      //             o.object.geometry.parameters.width / 2 -
+      //             outerLineOff,
+      //           o.object.position.y +
+      //             o.object.geometry.parameters.height / 2 +
+      //             outerLineOff,
+      //           o.object.position.z +
+      //             o.object.geometry.parameters.depth / 2 +
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x -
-                  o.object.geometry.parameters.width / 2 -
-                  outerLineOff,
-                o.object.position.y +
-                  o.object.geometry.parameters.height / 2 +
-                  outerLineOff,
-                o.object.position.z +
-                  o.object.geometry.parameters.depth / 2 +
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x +
+      //             o.object.geometry.parameters.width / 2 +
+      //             outerLineOff,
+      //           o.object.position.y +
+      //             o.object.geometry.parameters.height / 2 +
+      //             outerLineOff,
+      //           o.object.position.z +
+      //             o.object.geometry.parameters.depth / 2 +
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x +
-                  o.object.geometry.parameters.width / 2 +
-                  outerLineOff,
-                o.object.position.y +
-                  o.object.geometry.parameters.height / 2 +
-                  outerLineOff,
-                o.object.position.z +
-                  o.object.geometry.parameters.depth / 2 +
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x +
+      //             o.object.geometry.parameters.width / 2 +
+      //             outerLineOff,
+      //           o.object.position.y -
+      //             o.object.geometry.parameters.height / 2 -
+      //             outerLineOff,
+      //           o.object.position.z +
+      //             o.object.geometry.parameters.depth / 2 +
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x +
-                  o.object.geometry.parameters.width / 2 +
-                  outerLineOff,
-                o.object.position.y -
-                  o.object.geometry.parameters.height / 2 -
-                  outerLineOff,
-                o.object.position.z +
-                  o.object.geometry.parameters.depth / 2 +
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x +
+      //             o.object.geometry.parameters.width / 2 +
+      //             outerLineOff,
+      //           o.object.position.y -
+      //             o.object.geometry.parameters.height / 2 -
+      //             outerLineOff,
+      //           o.object.position.z -
+      //             o.object.geometry.parameters.depth / 2 -
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x +
-                  o.object.geometry.parameters.width / 2 +
-                  outerLineOff,
-                o.object.position.y -
-                  o.object.geometry.parameters.height / 2 -
-                  outerLineOff,
-                o.object.position.z -
-                  o.object.geometry.parameters.depth / 2 -
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x +
+      //             o.object.geometry.parameters.width / 2 +
+      //             outerLineOff,
+      //           o.object.position.y +
+      //             o.object.geometry.parameters.height / 2 +
+      //             outerLineOff,
+      //           o.object.position.z -
+      //             o.object.geometry.parameters.depth / 2 -
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x +
-                  o.object.geometry.parameters.width / 2 +
-                  outerLineOff,
-                o.object.position.y +
-                  o.object.geometry.parameters.height / 2 +
-                  outerLineOff,
-                o.object.position.z -
-                  o.object.geometry.parameters.depth / 2 -
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x -
+      //             o.object.geometry.parameters.width / 2 -
+      //             outerLineOff,
+      //           o.object.position.y +
+      //             o.object.geometry.parameters.height / 2 +
+      //             outerLineOff,
+      //           o.object.position.z -
+      //             o.object.geometry.parameters.depth / 2 -
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x -
-                  o.object.geometry.parameters.width / 2 -
-                  outerLineOff,
-                o.object.position.y +
-                  o.object.geometry.parameters.height / 2 +
-                  outerLineOff,
-                o.object.position.z -
-                  o.object.geometry.parameters.depth / 2 -
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x -
+      //             o.object.geometry.parameters.width / 2 -
+      //             outerLineOff,
+      //           o.object.position.y -
+      //             o.object.geometry.parameters.height / 2 -
+      //             outerLineOff,
+      //           o.object.position.z -
+      //             o.object.geometry.parameters.depth / 2 -
+      //             outerLineOff
+      //         ),
 
-              new THREE.Vector3(
-                o.object.position.x -
-                  o.object.geometry.parameters.width / 2 -
-                  outerLineOff,
-                o.object.position.y -
-                  o.object.geometry.parameters.height / 2 -
-                  outerLineOff,
-                o.object.position.z -
-                  o.object.geometry.parameters.depth / 2 -
-                  outerLineOff
-              ),
+      //         new THREE.Vector3(
+      //           o.object.position.x -
+      //             o.object.geometry.parameters.width / 2 -
+      //             outerLineOff,
+      //           o.object.position.y -
+      //             o.object.geometry.parameters.height / 2 -
+      //             outerLineOff,
+      //           o.object.position.z +
+      //             o.object.geometry.parameters.depth / 2 +
+      //             outerLineOff
+      //         ),
+      //       ];
 
-              new THREE.Vector3(
-                o.object.position.x -
-                  o.object.geometry.parameters.width / 2 -
-                  outerLineOff,
-                o.object.position.y -
-                  o.object.geometry.parameters.height / 2 -
-                  outerLineOff,
-                o.object.position.z +
-                  o.object.geometry.parameters.depth / 2 +
-                  outerLineOff
-              ),
-            ];
+      //       boxOutline.forEach((p) => {
+      //         points.push(p);
+      //       });
+      //       const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
-            boxOutline.forEach((p) => {
-              points.push(p);
-            });
-            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      //       const line = new THREE.Line(geometry, material);
+      //       line.name = "outlineObjectLine" + o.id;
+      //       // scene.add(line);
+      //       // console.log(o.id, o.outlined);
+      //       // }
+      //     }
+      //     if (
+      //       (cameraDistance(camera).object == o.object &&
+      //         cameraDistance(camera) != undefined) ||
+      //       cameraDistance(camera) != null
+      //     ) {
+      //       o.outlined = true;
+      //     } else {
+      //       scene.remove(scene.getObjectByName("outlineObjectLine" + o.id));
+      //       o.outlined = false;
+      //     }
+      //     if (o.type == "material") {
+      //       let prevVelX = o.velX;
+      //       let prevVelZ = o.velZ;
+      //       worldObjects.forEach((wo) => {
+      //         if (wo.type == "Group") return;
+      //         let x = o.object.position.x;
+      //         let y = o.object.position.y;
+      //         let z = o.object.position.z;
+      //         let sx = o.object.geometry.parameters.width;
+      //         let sy = o.object.geometry.parameters.height;
+      //         let sz = o.object.geometry.parameters.depth;
 
-            const line = new THREE.Line(geometry, material);
-            line.name = "outlineObjectLine" + o.id;
-            // scene.add(line);
-            // console.log(o.id, o.outlined);
-            // }
-          }
-          if (
-            (cameraDistance(camera).object == o.object &&
-              cameraDistance(camera) != undefined) ||
-            cameraDistance(camera) != null
-          ) {
-            o.outlined = true;
-          } else {
-            scene.remove(scene.getObjectByName("outlineObjectLine" + o.id));
-            o.outlined = false;
-          }
-          if (o.type == "material") {
-            let prevVelX = o.velX;
-            let prevVelZ = o.velZ;
-            worldObjects.forEach((wo) => {
-              if (wo.type == "Group") return;
-              let x = o.object.position.x;
-              let y = o.object.position.y;
-              let z = o.object.position.z;
-              let sx = o.object.geometry.parameters.width;
-              let sy = o.object.geometry.parameters.height;
-              let sz = o.object.geometry.parameters.depth;
+      //         let wx = wo.object.position.x;
+      //         let wy = wo.object.position.y;
+      //         let wz = wo.object.position.z;
+      //         let wsx = wo.object.geometry.parameters.width;
+      //         let wsy = wo.object.geometry.parameters.height;
+      //         let wsz = wo.object.geometry.parameters.depth;
 
-              let wx = wo.object.position.x;
-              let wy = wo.object.position.y;
-              let wz = wo.object.position.z;
-              let wsx = wo.object.geometry.parameters.width;
-              let wsy = wo.object.geometry.parameters.height;
-              let wsz = wo.object.geometry.parameters.depth;
+      //         let woName = wo.object.name.split(",")[0];
 
-              let woName = wo.object.name.split(",")[0];
+      //         if (woName != "MapObject" && woName != null && woName != "") {
+      //           if (
+      //             inBetweenFunc(o.object, wo.object) &&
+      //             y - sy / 2 < wy + wsy / 2
+      //           ) {
+      //             // o.object.position.y =
+      //             //   wo.object.position.y +
+      //             //   wo.object.geometry.parameters.height / 2;
+      //             if (wo.blockLogic && o.object != wo.object) {
+      //               if (wo.blockLogic.direction) {
+      //                 if (wo.blockLogic.direction == "north") {
+      //                   o.velZ = -wo.blockLogic.speed;
+      //                   // worldObjects.forEach((o2) => {
+      //                   //   if (o2.blockLogic && o2 != wo)
+      //                   //     if (o2.blockLogic.blockType == "conveyor") {
+      //                   //       o.onConveyor = true;
+      //                   //       console.log('as12312d');
+      //                   //     } else {
+      //                   //       console.log(o.onConveyor);
+      //                   //       o.onConveyoor = false;
+      //                   //     }
+      //                   // });
+      //                 } else if (wo.blockLogic.direction == "south") {
+      //                   o.velZ = wo.blockLogic.speed;
+      //                 }
+      //                 if (wo.blockLogic.direction == "east") {
+      //                   o.velX = -wo.blockLogic.speed;
+      //                 } else if (wo.blockLogic.direction == "west") {
+      //                   o.velX = wo.blockLogic.speed;
+      //                 }
+      //               }
+      //             }
+      //           } else {
+      //             // o.velZ *= 0.01;
+      //             // o.velY = -gravity;
+      //           }
+      //         }
+      //       });
+      //     }
+      //     // if (o.blockLogic)
+      //     //   switch (o.blockLogic.blockType) {
+      //     //     case "conveyor":
+      //     //       worldObjects.forEach((wo) => {
+      //     //         console.log(wo);
+      //     //         if (wo.type == "material") {
+      //     //           console.log("material");
+      //     //         }
+      //     //       });
 
-              if (woName != "MapObject" && woName != null && woName != "") {
-                if (
-                  inBetweenFunc(o.object, wo.object) &&
-                  y - sy / 2 < wy + wsy / 2
-                ) {
-                  // o.object.position.y =
-                  //   wo.object.position.y +
-                  //   wo.object.geometry.parameters.height / 2;
-                  if (wo.blockLogic && o.object != wo.object) {
-                    if (wo.blockLogic.direction) {
-                      if (wo.blockLogic.direction == "north") {
-                        o.velZ = -wo.blockLogic.speed;
-                        // worldObjects.forEach((o2) => {
-                        //   if (o2.blockLogic && o2 != wo)
-                        //     if (o2.blockLogic.blockType == "conveyor") {
-                        //       o.onConveyor = true;
-                        //       console.log('as12312d');
-                        //     } else {
-                        //       console.log(o.onConveyor);
-                        //       o.onConveyoor = false;
-                        //     }
-                        // });
-                      } else if (wo.blockLogic.direction == "south") {
-                        o.velZ = wo.blockLogic.speed;
-                      }
-                      if (wo.blockLogic.direction == "east") {
-                        o.velX = -wo.blockLogic.speed;
-                      } else if (wo.blockLogic.direction == "west") {
-                        o.velX = wo.blockLogic.speed;
-                      }
-                    }
-                  }
-                } else {
-                  // o.velZ *= 0.01;
-                  // o.velY = -gravity;
-                }
-              }
-            });
-          }
-          // if (o.blockLogic)
-          //   switch (o.blockLogic.blockType) {
-          //     case "conveyor":
-          //       worldObjects.forEach((wo) => {
-          //         console.log(wo);
-          //         if (wo.type == "material") {
-          //           console.log("material");
-          //         }
-          //       });
-
-          //       break;
-          //   }
-          o.object.position.x += o.velX * delta;
-          // o.object.position.y += o.velY * delta * 90; // 90 is gravity or something idk
-          // o.object.position.y -= gravity;
-          o.object.position.z += o.velZ * delta;
-        });
-        // console.log(cameraDistance(camera));
-      }
+      //     //       break;
+      //     //   }
+      //     o.object.position.x += o.velX * delta;
+      //     // o.object.position.y += o.velY * delta * 90; // 90 is gravity or something idk
+      //     // o.object.position.y -= gravity;
+      //     o.object.position.z += o.velZ * delta;
+      //   });
+      //   // console.log(cameraDistance(camera));
+      // }
 
       // import { EffectComposer } from "../postprocessing/EffectComposer.js";
       document.addEventListener("keydown", (e) => {
@@ -2530,6 +2313,8 @@
               case 16: // shift
                 run = true;
                 break;
+              case 17:
+                player.crouching = true;
             }
         }.bind(this);
 
@@ -2557,7 +2342,7 @@
               moveRight = false;
               break;
             case 17:
-              crouching = true;
+              player.crouching = false;
               break;
             case 16: // shift
               run = false;
@@ -2611,7 +2396,11 @@
             var currentSpeed = scope.speed;
             if (run && (moveForward || moveBackward || moveLeft || moveRight))
               currentSpeed = currentSpeed + currentSpeed * 1.05;
-
+            if (player.crouching) {
+              camera.position.y = -0;
+            } else if (player.crouching == false) {
+              camera.position.y = 0;
+            }
             if (moveForward) {
               if (playerCollisionWithWallTop()) {
                 yawObject.position.z = floor.position.z - floorHeight / 2;
@@ -2723,7 +2512,7 @@
             ).style.backgroundColor = "transparent";
             // instructions.style.display = 'none';
           } else {
-            // paused = true;
+            paused = true;
             controls.enabled = false;
             if (
               document.getElementById("crosshairUI").style.display ==
@@ -2827,38 +2616,61 @@
       // document.getElementsByClassName("keybind")
       // init();
       // animate();
-      function loadPlayer(p) {
+      function loadText(obj, centered, x, y, z, t, color, size) {
+        let yes = true;
+        if (!obj) return;
         loader.load("./fonts/font.json", (font) => {
-          const textgeom = new THREE.TextGeometry(player.displayName, {
-            font: font,
-            size: 1,
-            height: 0.1,
-            // curveSegments: 12,
-            // bevelEnabled: true,
-            // bevelThickness: 10,
-            // bevelSize: 8,
-            // bevelOffset: 0,
-            // bevelSegments: 5,
+          obj.children.forEach((c) => {
+            if (c.name == "displayName") {
+              if (c.geometry.parameters.text == t) {
+                // console.log("asd");
+                // console.log(c.geometry.parameters.text, t);
+                yes = false;
+                return;
+              }
+            }
           });
-          const textmat = new THREE.MeshBasicMaterial({ color: "green" });
-          let text = new THREE.Mesh(textgeom, textmat);
-          THREE.GeometryUtils.center(textgeom);
-          text.position.x = 0;
-          text.position.y = 12;
-          text.position.z = 0;
+          if (yes) {
+            const textgeom = new THREE.TextGeometry(t, {
+              font: font,
+              size: size,
+              height: 0.1,
+            });
+            const textmat = new THREE.MeshBasicMaterial({ color: color });
+            let text = new THREE.Mesh(textgeom, textmat);
+            textgeom.center();
+            text.position.x = 0;
+            text.position.y = 12;
+            text.position.z = 0;
 
-          text.receiveShadow = true;
-          text.castShadow = true;
-          text.name = "displayName";
+            text.receiveShadow = true;
+            text.castShadow = true;
+            text.name = "displayName";
 
-          pObject.add(text);
+            let newDir = new THREE.Vector3(player.x, player.y, player.z);
+
+            // if (centered) {
+            //   var pos = new THREE.Vector3();
+            //   var box = new THREE.Box3().setFromObject(c2);
+            //   pos.add(newDir);
+            //   text.lookAt(pos);
+            //   // scene.getObjectByName();
+            //   // c2.geometry.parameters.text = player.displayName;
+            //   text.position.y = 2;
+            // }
+
+            obj.add(text);
+          }
         });
+      }
 
+      function loadPlayer(p) {
         playerList.forEach((player) => {
           if (player.id === p.id) {
             return;
           }
         });
+
         let geom = new THREE.BoxBufferGeometry(2, 2, 2);
         let mat = new THREE.MeshBasicMaterial({
           color: ["red", "orange", "yellow"][Math.floor(Math.random() * 3)],
@@ -2868,12 +2680,16 @@
         pObject.name = p.id;
         pObject.position.y = 40;
         scene.add(pObject);
+
+        // loadText(pObject, true, 0, 2, 0, "Dababy", "red", 1);
+
         let pName = p.name;
         let pId = p.id;
         let pos = p.position;
         let newPlayer = {
           name: pName,
           id: pId,
+          displayName: player.displayName,
           position: pos,
         };
         let obj = new THREE.Object3D();
@@ -2886,15 +2702,82 @@
 
       function init() {
         const allPlayersRef = firebase.database().ref("players");
-
+        loadGLTF("./models/end_table.gltf", 30, 0, -30, 0.2, 0.1, 0.1, "test");
         allPlayersRef.on("value", (snapshot) => {
           let players = {};
           players = snapshot.val() || {};
+
           Object.keys(players).forEach((s) => {
+            scene.children.forEach((c) => {
+              if (c.children.length > 0) {
+                //     // console.log(c);
+                c.children.forEach((c2) => {
+                  // if(c2.name == "displayName") {
+                  //   console.log(c2);
+                  // }
+                  //       if (c2.type == "Object3D") {
+                  //         let name = c2.name.split(",");
+                  //       } else if (c2.name == "displayName") {
+                  //         var newDir = new THREE.Vector3(
+                  //           player.x,
+                  //           player.y,
+                  //           player.z
+                  //         );
+                  //         var pos = new THREE.Vector3();
+                  //         var box = new THREE.Box3().setFromObject(c2);
+                  //         pos.add(newDir);
+                  //         c2.lookAt(pos);
+                  //         // scene.getObjectByName();
+                  //         // c2.geometry.parameters.text = player.displayName;
+                  //         c2.position.y = 2;
+                  //       }
+                });
+              }
+            });
             if (s !== player.id) {
-              scene.getObjectByName(s).position.x = players[s].position.x;
-              scene.getObjectByName(s).position.y = players[s].position.y;
-              scene.getObjectByName(s).position.z = players[s].position.z;
+              loadText(
+                scene.getObjectByName(s),
+                true,
+                0,
+                2,
+                0,
+                players[s].displayName,
+                "red",
+                1
+              );
+              // let newDir = new THREE.Vector3(player.x, player.y, player.z);
+
+              // var pos = new THREE.Vector3();
+              // var box = new THREE.Box3().setFromObject(
+              //   scene.getObjectByName(s).getObjectByName("displayName")
+              // );
+              // pos.add(newDir);
+              // scene.getObjectByName();
+              // c2.geometry.parameters.text = player.displayName;
+              // text.position.y = 2;
+
+              // scene
+              //   .getObjectByName(s)
+              //   .getObjectByName("displayName")
+              //   .lookAt(pos);
+              // scene
+              //   .getObjectByName(s)
+              //   .getObjectByName("displayName").position.y = 2;
+
+              // scene.getObjectByName(s).children.forEach((c) => {
+              //   if(c.name == "displayName") {
+              //     c.geometry.parameters.text = players[s].displayName;
+              //   }
+              // });
+              // // scene
+              //   .getObjectByName(s)
+              //   .getObjectByName("displayName").geometry.parameters.text =
+              //   scene.getObjectByName(s).name;
+              if (scene.getObjectByName(s)) {
+                scene.getObjectByName(s).position.x = players[s].position.x;
+                scene.getObjectByName(s).position.y = players[s].position.y;
+                scene.getObjectByName(s).position.z = players[s].position.z;
+              }
             }
           });
           // whenever there is a change in the database, this code will run
@@ -2902,23 +2785,58 @@
         allPlayersRef.on("child_added", (snapshot) => {
           // whenever there is a node in the tree, this code will run
           if (snapshot.val().id === player.id) {
-            console.log("you are here!");
           } else {
+            console.log(snapshot.val().id);
             loadPlayer(snapshot.val());
           }
         });
         allPlayersRef.on("child_removed", (snapshot) => {
+          playerList.forEach((player) => {
+            if (player.id == snapshot.val().id) {
+              playerList.splice(playerList.indexOf(player), 1);
+            }
+          });
           scene.remove(scene.getObjectByName(snapshot.val().id));
         });
 
         firebase.auth().onAuthStateChanged((user) => {
+          let acnts = firebase.database().ref("acnts/");
+          acnts.on("value", (s) => {
+            let accounts = {};
+            accounts = s.val() || {};
+            console.log(s.val(), accounts);
+            if(s.val()[account.username]) {
+              
+
+
+
+
+
+
+
+              
+            }
+          });
           if (user) {
             player.id = user.uid;
             player.ref = firebase.database().ref(`players/${player.id}`);
-
+            if (account.username) {
+              player.r439gqadfabdfayb = firebase
+                .database()
+                .ref(`acnts/${account.username}`);
+              player.r439gqadfabdfayb.set({
+                username: account.username,
+                username: account.username,
+                email: account.email,
+                saveData: {
+                  dat1: 1,
+                },
+              });
+            }
             player.ref.set({
               id: player.id,
               name: player.id,
+              displayName: player.displayName,
               position: {
                 x: player.x,
                 y: player.y,
@@ -2957,33 +2875,34 @@
 
         window.addEventListener("resize", onWindowResize, false);
 
-        let ambientLight = new THREE.AmbientLight(0x404040, 0);
-        scene.add(ambientLight);
+        // let ambientLight = new THREE.AmbientLight(0x404040, 0);
+        // scene.add(ambientLight);
 
         // let light = new THREE.DirectionalLight(0xffffff, 1);
         // light.position.set(10, 10, -10);
         // light.castShadow = true;
         // scene.add(light);
 
-        // spotlight = new THREE.SpotLight(0xffa95c, 10);
+        // spotlight = new THREE.SpotLight(0xffa95c, 0.1);
         // spotlight.castShadow = true;
-        // spotlight.position.set(0, 1000, 0);
+        // spotlight.position.set(0, 100, 100);
         // scene.add(spotlight);
 
         var light = new THREE.HemisphereLight(0xffeeb1, 0x080820, 1);
-        // light.position.set(0, 100, 0.4);
+        light.position.set(100, 100, 100);
+        // light.castShadow = true;
         scene.add(light);
 
-        // var dirLight = new THREE.SpotLight(0xffffff, 0.5, 0.0, 180.0);
-        // dirLight.color.setHSL(0.1, 1, 0.95);
-        // dirLight.position.set(100, 300, 100);
-        // dirLight.castShadow = true;
-        // dirLight.lookAt(new THREE.Vector3());
-        // scene.add(dirLight);
+        var dirLight = new THREE.SpotLight(0xffffff, 0.5, 0.0, 180.0);
+        dirLight.color.setHSL(0.1, 1, 0.95);
+        dirLight.position.set(100, 300, 100);
+        dirLight.castShadow = true;
+        dirLight.lookAt(new THREE.Vector3());
+        scene.add(dirLight);
 
-        // dirLight.shadow.mapSize.width = 2096;
-        // dirLight.shadow.mapSize.height = 4096;
-        // dirLight.shadow.camera.far = 3000;
+        dirLight.shadow.mapSize.width = 2096;
+        dirLight.shadow.mapSize.height = 4096;
+        dirLight.shadow.camera.far = 3000;
 
         // var dirLightHeper = new THREE.SpotLightHelper( light, 10 );
         // scene.add( dirLightHeper );
@@ -3031,14 +2950,14 @@
         scene.add(zerozeroMarker);
         scene.add(world);
       }
+
+      init();
+      animate();
       document.getElementById("screen-first").style.display = "none";
 
       document.getElementById("crosshairContainer").style.display = "flex";
       document.getElementById("inventory").style.display = "flex";
       canvas.style.display = "inline-block";
-
-      init();
-      animate();
       document.getElementById("startGame").onclick = () => {
         // docuemtn.getElementById("crosshairContainer").style.display = "inline-block";
       };
@@ -3252,7 +3171,8 @@
           onchange="document.getElementById('nickname').classList.add('pullup'); setTimeout(()=> {
             document.getElementById('nickname').classList.remove('pullup'); 
             document.getElementById('nickname').style.bottom = '200px';  
-            
+            player.displayName = document.getElementById('nickname').value;
+            console.log(player.displayName);
             setTimeout(()=>{
               document.getElementById('saveDiv').style.display = 'inline-block'; 
               }, 400)  
@@ -3273,6 +3193,18 @@
 
         <input class="fileButton" id="fileButton" type="file" />
         <button class="startGame" id="startGame">No? Start a New Game</button>
+      </div>
+    </div>
+
+    <div class="topBar" id="topBar">
+      <div class="info" id="info">
+        <div class="photo" id="photo">
+          <img src="" id="photoImg" width="50px" height="50px" />
+        </div>
+        <div class="name">
+          <p id="username"></p>
+        </div>
+        <button id="SignInBtn" onclick="login()">Sign In</button>
       </div>
     </div>
 

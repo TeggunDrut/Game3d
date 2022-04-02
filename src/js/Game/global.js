@@ -305,7 +305,7 @@ const canvas = document.getElementById("canvas");
 
 let scene;
 
-let paused = true;
+let paused = false;
 let keyState = {
   w: false,
   a: false,
@@ -456,8 +456,267 @@ function inBetweenFunc(obj1, obj2) {
     return false;
   }
 }
+let yawObject;
+let pitchObject;
 let camera;
 let itemHolder;
 let placeHolder;
 let player;
 let playerList = [];
+let currentHeldModel = [];
+let clock;
+
+let floor;
+
+function playerCollisionWithWallTop() {
+  let floorX = floor.position.x - floorWidth / 2;
+  let floorZ = floor.position.z - floorHeight / 2;
+  let x = yawObject.position.x;
+  let z = yawObject.position.z;
+
+  if (z < floorZ + wallDistOff) {
+    return true;
+  } else {
+    return false;
+  }
+}
+function playerCollisionWithWallBottom() {
+  let floorX = floor.position.x - floorWidth / 2;
+  let floorZ = floor.position.z - floorHeight / 2;
+  let x = yawObject.position.x;
+  let z = yawObject.position.z;
+
+  if (z > floorZ + floorHeight - wallDistOff) {
+    return true;
+  } else {
+    return false;
+  }
+}
+function playerCollisionWithWallLeft() {
+  let floorX = floor.position.x - floorWidth / 2;
+  let floorZ = floor.position.z - floorHeight / 2;
+  let x = yawObject.position.x;
+  let z = yawObject.position.z;
+
+  if (x < floorX + wallDistOff) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function playerCollisionWithWallRight() {
+  let floorX = floor.position.x - floorWidth / 2;
+  let floorZ = floor.position.z - floorHeight / 2;
+  let x = yawObject.position.x;
+  let z = yawObject.position.z;
+
+  if (x > floorX + floorWidth - wallDistOff) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+let currentMap;
+
+function collidingWithRect(mesh) {
+  let playerX = yawObject.position.x;
+  let playerY = yawObject.position.y - 30;
+  let playerZ = yawObject.position.z;
+  let geom = new THREE.BoxGeometry(mesh.scaleX, mesh.scaleY, mesh.scaleZ);
+  let mat = new THREE.MeshBasicMaterial({ color: mesh.color });
+  let m = new THREE.Mesh(geom, mat);
+  m.name = "block";
+  m.position.x = mesh.x;
+  m.position.y = mesh.y;
+  m.position.z = mesh.z;
+  let x = floor.position.x - floorWidth / 2 + mesh.x + mesh.scaleX / 2;
+  let y = m.position.y;
+  let z = (m.position.z =
+    floor.position.z - floorHeight / 2 + mesh.z + mesh.scaleZ / 2);
+  let s = false;
+
+  if (playerY < mesh.y) {
+    s = false;
+  } else {
+    s = true;
+  }
+  if (
+    playerY - player.height / 2 > mesh.y - mesh.scaleY &&
+    playerY - player.height / 2 < mesh.y &&
+    playerX < x + mesh.scaleX / 2 &&
+    playerX > x - mesh.scaleX / 2 &&
+    playerZ < z + mesh.scaleZ / 2 &&
+    playerZ > z - mesh.scaleZ / 2 &&
+    !(prevPlayerY > yawObject.position.y)
+  ) {
+    // if (!ontop) {
+    //   beneath = true;
+    // }
+    velocity.y = -velocity.y;
+    // alert(yawObject.position.y + " " + mesh.y + " " + prevPlayerY);
+    yawObject.position.y += y - yawObject.position.y - 3;
+  }
+  if (
+    playerY > y - mesh.scaleY / 2 &&
+    playerY < y + mesh.scaleY &&
+    // playerY + player.height < y - mesh.scaleY &&
+    playerX - wallDistOff + 3 < x + mesh.scaleX / 2 &&
+    playerX + wallDistOff - 3 > x - mesh.scaleX / 2 &&
+    playerZ - wallDistOff + 3 < z + mesh.scaleZ / 2 &&
+    playerZ + wallDistOff - 3 > z - mesh.scaleZ / 2
+  ) {
+    velocity.y = 0;
+    s = false;
+    ontop = true;
+    return "ontop";
+  }
+
+  if (
+    playerX > x - mesh.scaleX / 2 - wallDistOff &&
+    playerX < x - mesh.scaleX / 2 + wallDistOff &&
+    playerZ < z + mesh.scaleZ / 2 &&
+    playerZ > z - mesh.scaleZ / 2 &&
+    playerY < y + mesh.scaleY &&
+    s
+    // !(playerY > y + mesh.scaleY)
+  )
+    return "right";
+  if (
+    playerX < x + mesh.scaleX / 2 + wallDistOff &&
+    playerX > x + mesh.scaleX / 2 - wallDistOff &&
+    playerZ < z + mesh.scaleZ / 2 &&
+    playerZ > z - mesh.scaleZ / 2 &&
+    playerY < y + mesh.scaleY &&
+    s
+    // !(playerY > y + mesh.scaleY)
+  ) {
+    return "left";
+  }
+
+  if (
+    playerZ < z + mesh.scaleZ / 2 &&
+    playerZ > z - mesh.scaleZ / 2 - wallDistOff &&
+    playerX > x - mesh.scaleX / 2 &&
+    playerX < x + mesh.scaleX / 2 &&
+    playerY < y + mesh.scaleY &&
+    s
+    // !(playerY > y + mesh.scaleY)
+  ) {
+    return "top";
+  }
+  if (
+    playerZ > z - mesh.scaleZ / 2 - wallDistOff &&
+    playerZ < z + mesh.scaleZ / 2 + wallDistOff &&
+    playerX > x - mesh.scaleX / 2 &&
+    playerX < x + mesh.scaleX / 2 &&
+    playerY < y + mesh.scaleY &&
+    s
+  ) {
+    return "bottom";
+  }
+}
+function cameraDistance(camera) {
+  raycaster.setFromCamera(pointer, camera);
+  const intersects = raycaster.intersectObjects(scene.children);
+
+  // scene.children.forEach((c) => {
+  //   if (c.type == "Group" && c.name == "Scene") {
+  //     console.log(c);
+  //   }
+  // });
+
+  if (intersects[0] == undefined) {
+    return {
+      distance: 0,
+      point: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
+      object: {
+        type: "null",
+        name: "null",
+        position: {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+        geometry: {
+          parameters: {
+            width: 0,
+            height: 0,
+            depth: 0,
+          },
+        },
+      },
+    };
+  }
+  for (let i = 0; i < intersects.length; i++) {
+    let names = intersects[0].object.name.split(",");
+    // names.forEach((name) => {
+    //   if (name == "floor") {
+    //     // console.log(intersects[0].point.x, intersects[0].point.z);
+    //     return {
+    //       dist: intersects[0].distance,
+    //       x: intersects[0].point.x,
+    //       y: intersects[0].point.y,
+    //       z: intersects[0].point.z,
+    //     };
+    //   } else if (name == "conveyor") {
+    //     console.log('asdadasd');
+    //   }
+    // });
+    // console.log(intersects[0].object.type);
+    return intersects[0];
+  }
+}
+let raycaster;
+let pointer;
+
+let velocity;
+let direction;
+
+let signedIn = false;
+let account = {
+  username: "",
+  email: "",
+  password: "",
+}
+function login() {
+  let g = new firebase.auth.GoogleAuthProvider();
+  firebase
+    .auth()
+    .signInWithPopup(g)
+    .then((result) => {
+      /** @type {firebase.auth.OAuthCredential} */
+      var credential = result.credential;
+
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      var token = credential.accessToken;
+      // The signed-in user info.
+      var user = result.user;
+      console.log(user);
+      account.username = user.displayName;
+      account.email = user.email;
+      account.photoURL = user.photoURL;
+      signedIn = true;
+      return user;
+      // ...
+    })
+    .catch((error) => {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // The email of the user's account used.
+      var email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      var credential = error.credential;
+      console.log("Error", errorCode, errorMessage);
+
+      // ...
+      return "Error", errorCode, errorMessage;
+    });
+    
+}
